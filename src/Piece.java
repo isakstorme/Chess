@@ -1,0 +1,3 @@
+interface Piece {
+    Boolean isWhite();
+}
