@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 //This is based on https://www.youtube.com/watch?v=vO7wHV0HB8w
 
@@ -96,8 +97,6 @@ public class BoardView {
                     }
                     isWhite = !isWhite;
                 }
-                g.drawImage(bB, 0, 0, 64, 64, this);
-                g.drawImage(bK, 64, 0, 64, 64, this);
                 for (PiecePair pp: pieces){
                     String p = pp.piece;
                     Coordinate co = pp.coordinate;
@@ -109,16 +108,10 @@ public class BoardView {
         };
         frame.add(chessBoard);
         frame.setVisible(true);
-        try {
-            Thread.sleep(2000);
-        }catch(Exception e){
-            System.out.println("din mamma");
-        }
-        display(0, 0, wK, chessBoard);
-        chessBoard.repaint();
     }
     public static void main(String[] args) throws Exception {
         BoardView bb = new BoardView();
+        bb.chessGame();
     }
 
     public Image getImage(String piece){
@@ -162,8 +155,47 @@ public class BoardView {
     }
 
     
-    public void display(int r, int c, Image piece, JPanel chessBoard){
-        chessBoard.imageUpdate(piece, r, 7, c, squareSize, squareSize);
-        System.out.println("din mamma");
+    public void addPiece(Coordinate coordinate, String piece, JPanel chessBoard){  // adds chosen piece to choosen square.
+        SwingUtilities.invokeLater(() -> {
+            pieces.add(new PiecePair(piece, coordinate));
+            System.out.println(piece);
+            System.out.println(pieces);
+            chessBoard.repaint();});
+    }
+
+    public void removePiece(Coordinate coordinate){
+        SwingUtilities.invokeLater(() -> {    // I was getting some concurrency problems otherwise because somewhere, I don't know quite when, another thread was created and ArrayList is not threadSafe.
+            pieces.removeIf(p -> p.coordinate.equals(coordinate));
+            chessBoard.repaint();});
+    }
+
+    public void move(Coordinate from, Coordinate to){
+        SwingUtilities.invokeLater(() -> {
+            for (PiecePair pp : pieces){
+                if (pp.coordinate.equals(from)){
+                    addPiece(to, pp.piece, chessBoard);
+                }
+            removePiece(to);
+            removePiece(from);
+        }});
+
+    }
+
+    public void chessGame(){
+        try {
+            Thread.sleep(2000);
+            move(new Coordinate("f2"), new Coordinate("f3"));
+            addPiece(new Coordinate("f3"), "wP", chessBoard);
+            Thread.sleep(2000);
+            move(new Coordinate("e7"), new Coordinate("e5"));
+            Thread.sleep(2000);
+            move(new Coordinate("g2"), new Coordinate("g4"));
+            Thread.sleep(2000);
+            move(new Coordinate("d8"), new Coordinate("h4"));
+            chessBoard.repaint();
+            System.out.println("din mamma igen");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }

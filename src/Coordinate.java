@@ -1,14 +1,16 @@
 import java.util.HashMap;
 
 public class Coordinate {
-    public int file; // zero indexed
-    public int rank; // zero indexed
+    public String coordinate;
+    public char file; 
+    public char rank; 
     public int numFile;
     public int numRank;
     private HashMap<Character, Integer> fileMap;
     private HashMap<Character, Integer> rankMap;
 
     public Coordinate(String coordinate){   // Takes input like "d4" or "e5" and creates a zero indexed numerical representation. Used by Gui
+        this.coordinate = coordinate;
         char[] tmp = coordinate.toCharArray();
         fileMap = new HashMap<>();
         fileMap.put('a', 0);
@@ -28,10 +30,27 @@ public class Coordinate {
         rankMap.put('3', 5);
         rankMap.put('2', 6);
         rankMap.put('1', 7);
-        file = tmp[0];
+        file = tmp[0];   //Inte säker på att detta är rätt med tanke på char kan tolkas som int.
         rank = tmp[1];
         numFile = fileMap.get(tmp[0]);
         numRank = rankMap.get(tmp[1]);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this){
+            return true;
+        }
+        if (obj instanceof Coordinate){
+            if (((Coordinate)obj).numFile == this.numFile && ((Coordinate)obj).numRank == this.numRank){
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
+    public String toString() {
+        return coordinate;
     }
 
 }

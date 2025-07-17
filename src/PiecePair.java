@@ -8,5 +8,10 @@ public class PiecePair {   // represent a pair, where first element is supposed 
         this.coordinate = coordinate;
     }
 
+    @Override
+    public String toString() {
+        return piece + " : " + coordinate.toString();
+    }
+
 
 }
