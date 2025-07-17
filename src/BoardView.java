@@ -171,11 +171,12 @@ public class BoardView {
 
     public void move(Coordinate from, Coordinate to){
         SwingUtilities.invokeLater(() -> {
+            removePiece(to);
             for (PiecePair pp : pieces){
                 if (pp.coordinate.equals(from)){
+                    System.out.println(pp.piece);
                     addPiece(to, pp.piece, chessBoard);
                 }
-            removePiece(to);
             removePiece(from);
         }});
 
@@ -193,7 +194,6 @@ public class BoardView {
             Thread.sleep(2000);
             move(new Coordinate("d8"), new Coordinate("h4"));
             chessBoard.repaint();
-            System.out.println("din mamma igen");
         }catch(Exception e){
             e.printStackTrace();
         }
