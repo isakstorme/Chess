@@ -1,8 +1,8 @@
+package view;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-//This is based on https://www.youtube.com/watch?v=vO7wHV0HB8w
+import rules.Game;
+import rules.NumCoordinate;
+
+//This is partly (creating the board almost entirely) based on https://www.youtube.com/watch?v=vO7wHV0HB8w
 
 public class BoardView {
 
@@ -33,8 +36,10 @@ public class BoardView {
     JPanel chessBoard;
     ArrayList<PiecePair> pieces;    // Stores all pieces and the coordinates they are standing on.
     Boolean hasClicked;
+    public Game game;
 
     public BoardView() throws IOException{
+        game = new Game();
         bB = ImageIO.read(new File("Images/bB.png"));   // These images are converted from jpg to png. Takes from the lichess repo.
         bK = ImageIO.read(new File("Images/bK.png"));
         bN = ImageIO.read(new File("Images/bN.png"));
@@ -103,8 +108,6 @@ public class BoardView {
                 }
                 else{
                     to = coordinate;
-                    System.out.println(from.toString());
-                    System.out.println(to.toString());
                     move(from, to);
                     hasClicked = !hasClicked;
                 }
@@ -252,8 +255,6 @@ public class BoardView {
     public void addPiece(Coordinate coordinate, String piece, JPanel chessBoard){  // adds chosen piece to choosen square.
         SwingUtilities.invokeLater(() -> {
             pieces.add(new PiecePair(piece, coordinate));
-            System.out.println(piece);
-            System.out.println(pieces);
             chessBoard.repaint();});
     }
 
@@ -264,13 +265,17 @@ public class BoardView {
     }
 
     public void move(Coordinate from, Coordinate to){
-        // Här borde man kolla villkor för om draget är tillåtet så småningom.
+        // Här borde man kolla villkor för om draget är tillåtet så småningom. Behöver också ändra så kan hantera en passant.
+        if (!game.isLegalMove(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate))){
+            game.move(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate)); //break the function if move is illeal
+            System.out.println(game.board);
+            return;
+        }
         SwingUtilities.invokeLater(() -> {
             removePiece(from);
             removePiece(to);
             for (PiecePair pp : pieces){
                 if (pp.coordinate.equals(from)){
-                    System.out.println(pp.piece);
                     addPiece(to, pp.piece, chessBoard);
                 }
         }});

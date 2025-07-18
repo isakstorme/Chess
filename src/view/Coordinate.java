@@ -1,9 +1,8 @@
+package view;
 import java.util.HashMap;
 
-public class Coordinate {
+public class Coordinate {      // I don't know how useful this is, it might be better to not work with typical coordinates like "d4" and "e5"
     public String coordinate;
-    public char file; 
-    public char rank; 
     public int numFile;
     public int numRank;
     private HashMap<Character, Integer> fileMap;
@@ -30,8 +29,6 @@ public class Coordinate {
         rankMap.put('3', 5);
         rankMap.put('2', 6);
         rankMap.put('1', 7);
-        file = tmp[0];   //Inte säker på att detta är rätt med tanke på char kan tolkas som int.
-        rank = tmp[1];
         numFile = fileMap.get(tmp[0]);
         numRank = rankMap.get(tmp[1]);
     }
