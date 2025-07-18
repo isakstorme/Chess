@@ -3,9 +3,11 @@ package rules;
 public class Game {
 
     public Board board;
+    public Boolean whiteToMove;
 
     public Game(){
         board = new Board();
+        whiteToMove = true;
         System.out.println(board);
     }
 
@@ -24,14 +26,16 @@ public class Game {
     }
 
     public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){
-        System.out.println(to.rank);
-        System.out.println(from.rank);
         int deltaFile = to.file - from.file;
         int deltaRank = to.rank - from.rank;
         Move move = new Move(deltaFile, deltaRank);
         Piece piece = board.position[from.file][from.rank];
-        System.out.println(piece.moves());
-        System.out.println(move);
+        if (whiteToMove && !piece.isWhite()){
+            return false;
+        }
+        if (!whiteToMove && piece.isWhite()){
+            return false;
+        }
         if (piece.moves().contains(move)){
             return true;
         }
@@ -43,9 +47,9 @@ public class Game {
         int fRank = from.rank;
         int tFile = to.file;
         int tRank = to.rank;
-
         board.position[tFile][tRank] = board.position[fFile][fRank];
         board.position[fFile][fRank] = new EmptySquare();
+        whiteToMove = !whiteToMove;
     }
 
 }

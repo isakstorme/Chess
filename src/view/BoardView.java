@@ -116,7 +116,7 @@ public class BoardView {
             private Coordinate getCoordinate(int r, int c) {
                 int numR = r/squareSize;
                 int numC = c/squareSize;
-                char file = 'a';  // Just because Java says file and rank might not be initialised. But feel non-ideal
+                char file = 'a';  // Just because Java says file and rank might not be initialised. But feels non-ideal
                 char rank = '2';
 
                 if  (numR == 0){
@@ -266,11 +266,11 @@ public class BoardView {
 
     public void move(Coordinate from, Coordinate to){
         // Här borde man kolla villkor för om draget är tillåtet så småningom. Behöver också ändra så kan hantera en passant.
-        if (!game.isLegalMove(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate))){
-            game.move(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate)); //break the function if move is illeal
-            System.out.println(game.board);
-            return;
+        if (!game.isLegalMove(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate))){ 
+            return; //break the function if move is illeal
+            
         }
+        game.move(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate));
         SwingUtilities.invokeLater(() -> {
             removePiece(from);
             removePiece(to);
