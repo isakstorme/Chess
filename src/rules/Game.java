@@ -30,16 +30,34 @@ public class Game {
         int deltaRank = to.rank - from.rank;
         Move move = new Move(deltaFile, deltaRank);
         Piece piece = board.position[from.file][from.rank];
-        if (whiteToMove && !piece.isWhite()){
+        if (!rightPlayerMove(piece)){
             return false;
         }
-        if (!whiteToMove && piece.isWhite()){
+        if (takesOwnPiece(piece, to)){
             return false;
         }
         if (piece.moves().contains(move)){
             return true;
         }
         return false;
+    }
+
+    private boolean takesOwnPiece(Piece piece, NumCoordinate to) {
+        if (piece.player() == board.position[to.file][to.rank].player()){
+            return true;
+        }
+        return false;
+        
+    }
+
+    private boolean rightPlayerMove(Piece piece){
+        if (whiteToMove && !(piece.player() == 1)){
+            return false;
+        }
+        if (!whiteToMove && (piece.player() == 1)){
+            return false;
+        }
+        return true;
     }
 
     public void move(NumCoordinate from, NumCoordinate to) {   //Might create a function that runs isLegalMove as part of move, when boolean returns if succesful or not

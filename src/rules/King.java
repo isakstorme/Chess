@@ -3,11 +3,16 @@ package rules;
 import java.util.ArrayList;
 
 public class King implements Piece  {
-    Boolean isWhite;
-    ArrayList<Move> moves;
+    private int player;
+    private ArrayList<Move> moves;
 
     public King(Boolean isWhite){
-        this.isWhite = isWhite;
+        if(isWhite){
+            player = 1;
+        }
+        else{
+            player = 2;
+        }
         moves = new ArrayList<>();
         moves.add(new Move(1, 1));
         moves.add(new Move(1, -1));
@@ -21,8 +26,8 @@ public class King implements Piece  {
     }
 
     @Override
-    public Boolean isWhite() {
-        return isWhite;
+    public int player(){
+        return player;
     }
 
     @Override
@@ -32,7 +37,7 @@ public class King implements Piece  {
 
     @Override
     public String toString() {
-        if (isWhite){
+        if (player == 1){
             return "wK";
         }
         else return "bK";

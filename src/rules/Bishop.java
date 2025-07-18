@@ -3,11 +3,16 @@ package rules;
 import java.util.ArrayList;
 
 public class Bishop implements Piece  {
-    Boolean isWhite;
+    int player;
     ArrayList<Move> moves;
 
     public Bishop(Boolean isWhite){
-        this.isWhite = isWhite;
+        if (isWhite){
+            player = 1;
+        }
+        else{
+            player = 2;
+        }
         moves = new ArrayList<>();
         for (int i = 1; i <= 7; i++){
             moves.add(new Move(i, i));
@@ -19,8 +24,8 @@ public class Bishop implements Piece  {
     }
 
     @Override
-    public Boolean isWhite() {
-        return isWhite;
+    public int player() {
+        return player;
     }
 
     @Override
@@ -30,7 +35,7 @@ public class Bishop implements Piece  {
 
     @Override
     public String toString() {
-        if (isWhite){
+        if (player == 1){
             return "wB";
         }
         else return "bB";

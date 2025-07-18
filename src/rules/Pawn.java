@@ -3,11 +3,16 @@ package rules;
 import java.util.ArrayList;
 
 public class Pawn implements Piece  {
-    Boolean isWhite;
-    ArrayList<Move> moves;
+    private int player;
+    private ArrayList<Move> moves;
 
     public Pawn(Boolean isWhite){
-        this.isWhite = isWhite;
+        if (isWhite){
+            player = 1;
+        }
+        else{
+            player = 2;
+        }
         moves = new ArrayList<>();
         if (isWhite){
             moves.add(new Move(0, 2));
@@ -25,8 +30,8 @@ public class Pawn implements Piece  {
     }
 
     @Override
-    public Boolean isWhite() {
-        return isWhite;
+    public int player(){
+        return player;
     }
 
     @Override
@@ -36,7 +41,7 @@ public class Pawn implements Piece  {
 
     @Override
     public String toString() {
-        if (isWhite){
+        if (player == 1){
             return "wP";
         }
         else return "bP";

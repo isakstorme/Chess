@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class EmptySquare implements Piece {
 
     @Override
-    public Boolean isWhite() {
-       return false;
+    public int player() {
+       return 0;
     }
 
     @Override
