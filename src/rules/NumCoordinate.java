@@ -39,5 +39,12 @@ public class NumCoordinate {
         rank = rankMap.get(tmp[1]);
     }
 
+    public NumCoordinate move(Move m){
+        int deltaFile = m.deltaFile;
+        int deltaRank = m.deltaRank;
+
+        return new NumCoordinate(file + deltaFile, rank + deltaRank);
+    }
+
 
 }
