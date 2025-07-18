@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class BoardView {
     JFrame frame;
     JPanel chessBoard;
     ArrayList<PiecePair> pieces;    // Stores all pieces and the coordinates they are standing on.
+    Boolean hasClicked;
 
     public BoardView() throws IOException{
         bB = ImageIO.read(new File("Images/bB.png"));   // These images are converted from jpg to png. Takes from the lichess repo.
@@ -46,39 +49,8 @@ public class BoardView {
         wQ = ImageIO.read(new File("Images/wQ.png"));
         frame = new JFrame("Chess");
         frame.setBounds(10, 10, 512, 512);
-        pieces = new ArrayList<>();    // Stores all pieces and the coordinates they are standing on.
-        pieces.add(new PiecePair("wR", new Coordinate("a1")));
-        pieces.add(new PiecePair("wN", new Coordinate("b1")));
-        pieces.add(new PiecePair("wB", new Coordinate("c1")));
-        pieces.add(new PiecePair("wQ", new Coordinate("d1")));
-        pieces.add(new PiecePair("wK", new Coordinate("e1")));
-        pieces.add(new PiecePair("wB", new Coordinate("f1")));
-        pieces.add(new PiecePair("wN", new Coordinate("g1")));
-        pieces.add(new PiecePair("wR", new Coordinate("h1")));
-        pieces.add(new PiecePair("wP", new Coordinate("a2")));
-        pieces.add(new PiecePair("wP", new Coordinate("b2")));
-        pieces.add(new PiecePair("wP", new Coordinate("c2")));
-        pieces.add(new PiecePair("wP", new Coordinate("d2")));
-        pieces.add(new PiecePair("wP", new Coordinate("e2")));
-        pieces.add(new PiecePair("wP", new Coordinate("f2")));
-        pieces.add(new PiecePair("wP", new Coordinate("g2")));
-        pieces.add(new PiecePair("wP", new Coordinate("h2")));
-        pieces.add(new PiecePair("bR", new Coordinate("a8")));
-        pieces.add(new PiecePair("bN", new Coordinate("b8")));
-        pieces.add(new PiecePair("bB", new Coordinate("c8")));
-        pieces.add(new PiecePair("bQ", new Coordinate("d8")));
-        pieces.add(new PiecePair("bK", new Coordinate("e8")));
-        pieces.add(new PiecePair("bB", new Coordinate("f8")));
-        pieces.add(new PiecePair("bN", new Coordinate("g8")));
-        pieces.add(new PiecePair("bR", new Coordinate("h8")));
-        pieces.add(new PiecePair("bP", new Coordinate("a7")));
-        pieces.add(new PiecePair("bP", new Coordinate("b7")));
-        pieces.add(new PiecePair("bP", new Coordinate("c7")));
-        pieces.add(new PiecePair("bP", new Coordinate("d7")));
-        pieces.add(new PiecePair("bP", new Coordinate("e7")));
-        pieces.add(new PiecePair("bP", new Coordinate("f7")));
-        pieces.add(new PiecePair("bP", new Coordinate("g7")));
-        pieces.add(new PiecePair("bP", new Coordinate("h7")));
+        pieces = getStartingPosition();
+        hasClicked = false;
         chessBoard= new JPanel(){
             @Override
             public void paintComponent(java.awt.Graphics g) {
@@ -111,9 +83,94 @@ public class BoardView {
     }
     public static void main(String[] args) throws Exception {
         BoardView bb = new BoardView();
-        bb.chessGame();
+        //bb.chessGame();
+        bb.mainLoop();
     }
 
+    private void mainLoop() {
+        chessBoard.addMouseListener(new MouseAdapter() {
+            Coordinate from = new Coordinate("b1");
+            Coordinate to = new Coordinate("a1");
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int r = e.getX();
+                int c = e.getY();
+                Coordinate coordinate = getCoordinate(r, c);
+                if (!hasClicked){
+                    from = coordinate;
+                    hasClicked = !hasClicked;
+                }
+                else{
+                    to = coordinate;
+                    System.out.println(from.toString());
+                    System.out.println(to.toString());
+                    move(from, to);
+                    hasClicked = !hasClicked;
+                }
+            }
+
+            private Coordinate getCoordinate(int r, int c) {
+                int numR = r/squareSize;
+                int numC = c/squareSize;
+                char file = 'a';  // Just because Java says file and rank might not be initialised. But feel non-ideal
+                char rank = '2';
+
+                if  (numR == 0){
+                    file = 'a';
+                }
+                else if (numR == 1){
+                    file = 'b';
+                }
+                else if (numR == 2){
+                    file = 'c';
+                }
+                else if (numR == 3){
+                    file = 'd';
+                }
+                else if (numR == 4){
+                    file = 'e';
+                }
+                else if (numR == 5){
+                    file = 'f';
+                }
+                else if (numR == 6){
+                    file = 'g';
+                }
+                else if (numR == 7){
+                    file = 'h';
+                }
+
+                if  (numC == 0){
+                    rank = '8';
+                }
+                else if (numC == 1){
+                    rank = '7';
+                }
+                else if (numC == 2){
+                    rank = '6';
+                }
+                else if (numC == 3){
+                    rank = '5';
+                }
+                else if (numC == 4){
+                    rank = '4';
+                }
+                else if (numC == 5){
+                    rank = '3';
+                }
+                else if (numC == 6){
+                    rank = '2';
+                }
+                else if (numC == 7){
+                    rank = '1';
+                }
+                char [] chars = {file, rank};
+                String coordinateString = new String(chars);
+                return new Coordinate(coordinateString);
+            }
+        });
+    }
     public Image getImage(String piece){
         if (piece == "wP"){
             return wP;
@@ -154,6 +211,43 @@ public class BoardView {
         return null; //hehe
     }
 
+    public ArrayList<PiecePair> getStartingPosition(){
+        pieces = new ArrayList<>();    // Stores all pieces and the coordinates they are standing on.
+        pieces.add(new PiecePair("wR", new Coordinate("a1")));
+        pieces.add(new PiecePair("wN", new Coordinate("b1")));
+        pieces.add(new PiecePair("wB", new Coordinate("c1")));
+        pieces.add(new PiecePair("wQ", new Coordinate("d1")));
+        pieces.add(new PiecePair("wK", new Coordinate("e1")));
+        pieces.add(new PiecePair("wB", new Coordinate("f1")));
+        pieces.add(new PiecePair("wN", new Coordinate("g1")));
+        pieces.add(new PiecePair("wR", new Coordinate("h1")));
+        pieces.add(new PiecePair("wP", new Coordinate("a2")));
+        pieces.add(new PiecePair("wP", new Coordinate("b2")));
+        pieces.add(new PiecePair("wP", new Coordinate("c2")));
+        pieces.add(new PiecePair("wP", new Coordinate("d2")));
+        pieces.add(new PiecePair("wP", new Coordinate("e2")));
+        pieces.add(new PiecePair("wP", new Coordinate("f2")));
+        pieces.add(new PiecePair("wP", new Coordinate("g2")));
+        pieces.add(new PiecePair("wP", new Coordinate("h2")));
+        pieces.add(new PiecePair("bR", new Coordinate("a8")));
+        pieces.add(new PiecePair("bN", new Coordinate("b8")));
+        pieces.add(new PiecePair("bB", new Coordinate("c8")));
+        pieces.add(new PiecePair("bQ", new Coordinate("d8")));
+        pieces.add(new PiecePair("bK", new Coordinate("e8")));
+        pieces.add(new PiecePair("bB", new Coordinate("f8")));
+        pieces.add(new PiecePair("bN", new Coordinate("g8")));
+        pieces.add(new PiecePair("bR", new Coordinate("h8")));
+        pieces.add(new PiecePair("bP", new Coordinate("a7")));
+        pieces.add(new PiecePair("bP", new Coordinate("b7")));
+        pieces.add(new PiecePair("bP", new Coordinate("c7")));
+        pieces.add(new PiecePair("bP", new Coordinate("d7")));
+        pieces.add(new PiecePair("bP", new Coordinate("e7")));
+        pieces.add(new PiecePair("bP", new Coordinate("f7")));
+        pieces.add(new PiecePair("bP", new Coordinate("g7")));
+        pieces.add(new PiecePair("bP", new Coordinate("h7")));
+        return pieces;
+    }
+
     
     public void addPiece(Coordinate coordinate, String piece, JPanel chessBoard){  // adds chosen piece to choosen square.
         SwingUtilities.invokeLater(() -> {
@@ -170,14 +264,15 @@ public class BoardView {
     }
 
     public void move(Coordinate from, Coordinate to){
+        // Här borde man kolla villkor för om draget är tillåtet så småningom.
         SwingUtilities.invokeLater(() -> {
+            removePiece(from);
             removePiece(to);
             for (PiecePair pp : pieces){
                 if (pp.coordinate.equals(from)){
                     System.out.println(pp.piece);
                     addPiece(to, pp.piece, chessBoard);
                 }
-            removePiece(from);
         }});
 
     }
@@ -190,7 +285,7 @@ public class BoardView {
             Thread.sleep(2000);
             move(new Coordinate("e7"), new Coordinate("e5"));
             Thread.sleep(2000);
-            move(new Coordinate("g2"), new Coordinate("g4"));
+            move(new Coordinate("h2"), new Coordinate("h4"));
             Thread.sleep(2000);
             move(new Coordinate("d8"), new Coordinate("h4"));
             chessBoard.repaint();
