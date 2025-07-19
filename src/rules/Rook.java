@@ -20,7 +20,6 @@ public class Rook implements Piece  {
             moves.add(new Move(0, -i));
             moves.add(new Move(0, i));
         }
-
     }
 
     @Override

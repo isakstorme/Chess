@@ -22,12 +22,18 @@ public class King implements Piece  {
         moves.add(new Move(1, 0));
         moves.add(new Move(0, -1));
         moves.add(new Move(0, 1));
+        moves.add(new Move(2, 0));
+        moves.add(new Move(-2, 0));
 
     }
 
     @Override
     public int player(){
         return player;
+    }
+
+    public void moved(){
+        moves.removeIf(m -> Math.abs(m.deltaFile) == 2);
     }
 
     @Override

@@ -17,6 +17,7 @@ import rules.NumCoordinate;
 import rules.*;
 
 //This is partly (creating the board almost entirely) based on https://www.youtube.com/watch?v=vO7wHV0HB8w
+// Todo, fix graphics on en passant
 
 public class BoardView {
 

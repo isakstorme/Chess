@@ -2,9 +2,15 @@ package rules;
 
 public class Game {
 
+    //Todo, fix castling and promotion
     public Board board;
     public Boolean whiteToMove;
     private NumCoordinate[] lastMove;  // Move here defined as element 0 is starting square and element 1 is final square
+    private Boolean wKCastleRight;
+    private Boolean wQCastleRight;
+    private Boolean bKCastleRight;
+    private Boolean bQCastleRight;
+
 
     public Game(){
         board = new Board();
@@ -12,6 +18,10 @@ public class Game {
         lastMove = new NumCoordinate[2];
         lastMove[0] = new NumCoordinate(0, 0); //this is ugly, might fix later. It is to avoid nullpointerexception on first move
         lastMove[1] = new NumCoordinate(0, 0);
+        wKCastleRight = true;
+        wQCastleRight = true;
+        bKCastleRight = true;
+        bQCastleRight = true;
         System.out.println(board);
     }
 
@@ -164,15 +174,32 @@ public class Game {
         int tFile = to.file;
         int tRank = to.rank;
         Piece piece = board.position[fFile][fRank];
-        if (piece instanceof Pawn){
-            ((Pawn)piece).hasMoved();
-            if (from.file != to.file  && board.get(to) instanceof EmptySquare){  // Handle en passant
-                System.out.println("din mamma");
-                board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
-            }
-        }
         board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
+        if (piece instanceof Pawn){
+            ((Pawn)piece).moved();
+            if (from.file != to.file  && board.get(to) instanceof EmptySquare){  // Handles en passant
+                board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
+            }
+            if (to.rank == 7){
+                board.position[tFile][tRank] = new Queen(true);  // TODO: Should fix so not automatically promote to queen
+            }
+            if (to.rank == 0){
+                board.position[tFile][tRank] = new Queen(false);
+            }
+        }
+
+        if (piece instanceof King){
+            ((King)piece).moved();
+            if (to.file - from.file == 2){
+                board.position[5][to.rank] = board.position[7][to.rank];
+                board.position[7][to.rank] = new EmptySquare();
+            }
+            if (to.file - from.file == -2){
+                board.position[3][to.rank] = board.position[0][to.rank];
+                board.position[0][to.rank] = new EmptySquare();
+            }
+        }
         whiteToMove = !whiteToMove;
         lastMove[1] = to;
         lastMove[0] = from;
