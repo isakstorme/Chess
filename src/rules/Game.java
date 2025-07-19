@@ -178,7 +178,7 @@ public class Game {
         board.position[fFile][fRank] = new EmptySquare();
         if (piece instanceof Pawn){
             ((Pawn)piece).moved();
-            if (from.file != to.file  && board.get(to) instanceof EmptySquare){  // Handles en passant
+            if (from.file != to.file  && !(board.get(to) instanceof EmptySquare)){  // Handles en passant
                 board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
             }
             if (to.rank == 7){

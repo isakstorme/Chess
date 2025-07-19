@@ -252,18 +252,33 @@ public class BoardView {
         return pieces;
     }
 
-    
-    public void addPiece(Coordinate coordinate, String piece, JPanel chessBoard){  // adds chosen piece to choosen square.
-        SwingUtilities.invokeLater(() -> {
-            pieces.add(new PiecePair(piece, coordinate));
-            chessBoard.repaint();});
+    public ArrayList<PiecePair> boardToImage(Board board){
+        ArrayList<PiecePair> result = new ArrayList<>();
+        char [] lines = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        char [] ranks = {'1', '2', '3', '4', '5', '6', '7', '8'};
+        for (char l : lines){
+            for (char r : ranks){
+                char [] tmp = {l, r};
+                String coordinateString = String.valueOf(tmp);
+                NumCoordinate coordinate = new NumCoordinate(String.valueOf(coordinateString));
+                Piece piece = board.get(coordinate);
+                if (!(piece instanceof EmptySquare)){
+                    result.add(new PiecePair(piece.toString(), new Coordinate(coordinateString)));
+                }
+            }
+        }
+        return result;
     }
 
-    public void removePiece(Coordinate coordinate){
-        SwingUtilities.invokeLater(() -> {    // I was getting some concurrency problems otherwise because somewhere, I don't know quite when, another thread was created and ArrayList is not threadSafe.
-            pieces.removeIf(p -> p.coordinate.equals(coordinate));
-            chessBoard.repaint();});
+    
+    public void addPiece(Coordinate coordinate, String piece, JPanel chessBoard){  // adds chosen piece to choosen square.
+            pieces.add(new PiecePair(piece, coordinate));
+
     }
+    public void removePiece(Coordinate coordinate){
+        pieces.removeIf(p -> p.coordinate.equals(coordinate));
+    }
+    
 
     public void move(Coordinate from, Coordinate to){
         if (!game.isLegalMove(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate))){ 
@@ -272,13 +287,9 @@ public class BoardView {
         }
         game.move(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate));
         SwingUtilities.invokeLater(() -> {
-            removePiece(from);
-            removePiece(to);
-            for (PiecePair pp : pieces){
-                if (pp.coordinate.equals(from)){
-                    addPiece(to, pp.piece, chessBoard);
-                }
-        }});
+            pieces = boardToImage(game.board);  // Probably not efficient to rewrite everything but I don't think the cost in performance matters much.
+            chessBoard.repaint();
+        });
 
     }
 
