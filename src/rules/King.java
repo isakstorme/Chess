@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class King implements Piece  {
     private int player;
-    private ArrayList<Move> moves;
+    public ArrayList<Move> moves;
 
     public King(Boolean isWhite){
         if(isWhite){

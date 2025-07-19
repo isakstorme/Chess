@@ -2,8 +2,6 @@ package rules;
 
 import java.util.HashMap;
 
-import view.Coordinate;
-
 public class NumCoordinate {
     public int file;
     public int rank;
@@ -44,6 +42,18 @@ public class NumCoordinate {
         int deltaRank = m.deltaRank;
 
         return new NumCoordinate(file + deltaFile, rank + deltaRank);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this){
+            return true;
+        }
+        if ((obj instanceof NumCoordinate)){
+            NumCoordinate numObj = (NumCoordinate) obj;
+            return numObj.file == file && numObj.rank == rank;
+        }
+        return false;
     }
 
 
