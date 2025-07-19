@@ -49,6 +49,12 @@ public class Board {
         return startingPosition;
     }
 
+    public Piece get(NumCoordinate coordinate){
+        int file = coordinate.file;
+        int rank = coordinate.rank;
+        return position[file][rank];
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

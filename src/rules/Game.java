@@ -39,10 +39,31 @@ public class Game {
         if (invalidJumpOverPiece(from, to, move)){
             return false;
         }
-        if (piece.moves().contains(move)){
-            return true;
+        if (!(piece.moves().contains(move))){
+            return false;
         }
-        return false;
+        if (piece instanceof Pawn){
+            return isValidPawnMove(piece, move, from, to);
+        }
+
+        return true;
+    }
+
+    private Boolean isValidPawnMove(Piece piece, Move move, NumCoordinate from, NumCoordinate to) {
+        if (move.deltaFile != 0){   //if pawn move is diagonal
+            if (board.get(to).player() !=0 && board.get(to).player() != piece.player()){   //checks if we capture opponent's piece
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{  //if pawn move is straight
+            if (!(board.get(to).player() == 0)){
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean takesOwnPiece(Piece piece, NumCoordinate to) {
@@ -126,7 +147,11 @@ public class Game {
         int fRank = from.rank;
         int tFile = to.file;
         int tRank = to.rank;
-        board.position[tFile][tRank] = board.position[fFile][fRank];
+        Piece piece = board.position[fFile][fRank];
+        if (piece instanceof Pawn){
+            ((Pawn)piece).hasMoved();
+        }
+        board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
     }

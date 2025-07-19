@@ -39,6 +39,12 @@ public class Pawn implements Piece  {
         return moves;
     }
 
+    public void hasMoved(){
+        if (player == 1){
+            moves.removeIf(m -> m.deltaRank == 2 || m.deltaRank == -2);
+        }
+    }
+
     @Override
     public String toString() {
         if (player == 1){
