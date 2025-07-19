@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 
 import rules.Game;
 import rules.NumCoordinate;
+import rules.*;
 
 //This is partly (creating the board almost entirely) based on https://www.youtube.com/watch?v=vO7wHV0HB8w
 
@@ -88,7 +89,6 @@ public class BoardView {
     }
     public static void main(String[] args) throws Exception {
         BoardView bb = new BoardView();
-        //bb.chessGame();
         bb.mainLoop();
     }
 
@@ -265,7 +265,6 @@ public class BoardView {
     }
 
     public void move(Coordinate from, Coordinate to){
-        // Här borde man kolla villkor för om draget är tillåtet så småningom. Behöver också ändra så kan hantera en passant.
         if (!game.isLegalMove(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate))){ 
             return; //break the function if move is illeal
             

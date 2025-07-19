@@ -4,16 +4,24 @@ public class Game {
 
     public Board board;
     public Boolean whiteToMove;
+    private NumCoordinate[] lastMove;  // Move here defined as element 0 is starting square and element 1 is final square
 
     public Game(){
         board = new Board();
         whiteToMove = true;
+        lastMove = new NumCoordinate[2];
+        lastMove[0] = new NumCoordinate(0, 0); //this is ugly, might fix later. It is to avoid nullpointerexception on first move
+        lastMove[1] = new NumCoordinate(0, 0);
         System.out.println(board);
     }
 
     public Boolean isWhiteMove;
     
     public Boolean hasEnded(){  //Todo
+        return false;
+    }
+
+    public Boolean isCheck(){ //Todo
         return false;
     }
 
@@ -29,7 +37,7 @@ public class Game {
         int deltaFile = to.file - from.file;
         int deltaRank = to.rank - from.rank;
         Move move = new Move(deltaFile, deltaRank);
-        Piece piece = board.position[from.file][from.rank];
+        Piece piece = board.get(from);
         if (!rightPlayerMove(piece)){
             return false;
         }
@@ -54,10 +62,18 @@ public class Game {
             if (board.get(to).player() !=0 && board.get(to).player() != piece.player()){   //checks if we capture opponent's piece
                 return true;
             }
+            //checks en passent
+            else if ((to.rank == lastMove[1].rank + 1 || to.rank == lastMove[1].rank - 1) 
+            && to.file == lastMove[1].file 
+            && (Math.abs(lastMove[1].rank - lastMove[0].rank) == 2)
+            && board.get(lastMove[1]) instanceof Pawn){
+                return true;
+            }
             else{
                 return false;
             }
         }
+
         else{  //if pawn move is straight
             if (!(board.get(to).player() == 0)){
                 return false;
@@ -67,7 +83,7 @@ public class Game {
     }
 
     private boolean takesOwnPiece(Piece piece, NumCoordinate to) {
-        if (piece.player() == board.position[to.file][to.rank].player()){
+        if (piece.player() == board.get(to).player()){
             return true;
         }
         return false;
@@ -94,9 +110,9 @@ public class Game {
         }
         Move dir = directionOfMove(move);
         Move m = directionOfMove(move);   //this one is incremented according to dir
-        while (Math.abs(m.deltaFile) < Math.abs(move.deltaFile) || Math.abs(m.deltaRank) < Math.abs(move.deltaRank)){
+        while (Math.abs(m.deltaFile) < Math.abs(move.deltaFile) || Math.abs(m.deltaRank) < Math.abs(move.deltaRank)){ // We examine all squares leading up to the square we want to go to
             NumCoordinate newCoordinate = from.move(m);
-            if (!(board.position[newCoordinate.file][newCoordinate.rank] instanceof EmptySquare)){
+            if (!(board.get(newCoordinate) instanceof EmptySquare)){
                 return true;
             }
             m = new Move(m.deltaFile + dir.deltaFile, m.deltaRank + dir.deltaRank);
@@ -142,7 +158,7 @@ public class Game {
     }
 
 
-    public void move(NumCoordinate from, NumCoordinate to) {   //Might create a function that runs isLegalMove as part of move, when boolean returns if succesful or not
+    public void move(NumCoordinate from, NumCoordinate to) {   // This assumemes the move is legal, no check is performed here
         int fFile = from.file;
         int fRank = from.rank;
         int tFile = to.file;
@@ -150,10 +166,17 @@ public class Game {
         Piece piece = board.position[fFile][fRank];
         if (piece instanceof Pawn){
             ((Pawn)piece).hasMoved();
+            if (from.file != to.file  && board.get(to) instanceof EmptySquare){  // Handle en passant
+                System.out.println("din mamma");
+                board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
+            }
         }
         board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
+        lastMove[1] = to;
+        lastMove[0] = from;
+        System.out.println(board);
     }
 
 }

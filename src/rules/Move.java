@@ -1,5 +1,6 @@
 package rules;
 
+// This move class is defined relative to starting position, so does not give away information about starting position and final position of move.
 public class Move {   // Might be clever to create an interface for move and seperate between normal och special move (castling, en passant...). Might do later if seems like a good idea.
     public int deltaFile;
     public int deltaRank;
