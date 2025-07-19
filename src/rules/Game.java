@@ -55,7 +55,7 @@ public class Game {
                 Piece piece = board.get(coordinate);
                 for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
                     NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
-                    if (isLegalMove(coordinate, to)){
+                    if (isValidMove(coordinate, to)){
                         opponentThreats.add(to);
                         if (board.get(to) instanceof King){
                             isCheck = true;
@@ -69,14 +69,44 @@ public class Game {
     }
 
     public Boolean isMate(){  //Todo
-        return false;
+        if (!isCheck()){
+            return false;
+        }
+
+        for (int f = 0; f < 8; f++){
+            for (int r= 0; r<8; r++){  // for every square of the board,
+                NumCoordinate coordinate = new NumCoordinate(f, r);
+                Piece piece = board.get(coordinate);
+                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isLegalMove(coordinate, to)){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     public Boolean isStalemate(){  //Todo
-        return false;
+        for (int f = 0; f < 8; f++){
+            for (int r= 0; r<8; r++){  // for every square of the board,
+                NumCoordinate coordinate = new NumCoordinate(f, r);
+                Piece piece = board.get(coordinate);
+                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isLegalMove(coordinate, to)){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
-    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){
+    public Boolean isValidMove(NumCoordinate from, NumCoordinate to){  // doesn't check if results in check which is important for checking check mate and things
         if (isOutOfBoard(from) || isOutOfBoard(to)){
             return false;
         }
@@ -101,6 +131,34 @@ public class Game {
         }
 
         return true;
+    }
+
+    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){
+        if (isOutOfBoard(from) || isOutOfBoard(to)){
+            return false;
+        }
+        if (!(kingInCheck(from, to)) && isValidMove(from, to)){
+            return true;
+        }
+        return false;
+    }
+    
+
+    private boolean kingInCheck(NumCoordinate from, NumCoordinate to) {
+        Boolean result;
+        Piece piece = board.get(from);
+        Piece otherPiece = board.get(to);  // could be empty square
+        board.position[from.file][from.rank] = new EmptySquare();
+        board.position[to.file][to.rank] = piece;
+        if (isCheck()){
+            result = true;
+        }
+        else{
+            result = false;
+        }
+        board.position[to.file][to.rank] = otherPiece;
+        board.position[from.file][from.rank] = piece;
+        return result;
     }
 
     private boolean isOutOfBoard(NumCoordinate coordinate) {
@@ -249,6 +307,12 @@ public class Game {
         System.out.println(board);
         if (isCheck()){
             System.out.println("Schack");
+        }
+        if (isMate()){
+            System.out.println("checkmate");
+        }
+        if (isStalemate()){
+            System.out.println("Stalemate");
         }
     }
 
