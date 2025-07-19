@@ -184,6 +184,7 @@ public class Game {
                 }
             }
         }
+        whiteToMove = !whiteToMove;
         return opponentThreats;
     }
 
@@ -329,18 +330,17 @@ public class Game {
         int tFile = to.file;
         int tRank = to.rank;
         Piece piece = board.position[fFile][fRank];
-        board.position[tFile][tRank] = piece;
-        board.position[fFile][fRank] = new EmptySquare();
         if (piece instanceof Pawn){
             ((Pawn)piece).moved();
-            if (from.file != to.file  && !(board.get(to) instanceof EmptySquare)){  // Handles en passant
+            if (from.file != to.file  && (board.get(to) instanceof EmptySquare)){  // Handles en passant
                 board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
             }
             if (to.rank == 7){
-                board.position[tFile][tRank] = new Queen(true);  // TODO: Should fix so not automatically promote to queen
+                System.out.println("din mamma");
+                piece = new Queen(true);  // TODO: Should fix so not automatically promote to queen
             }
             if (to.rank == 0){
-                board.position[tFile][tRank] = new Queen(false);
+                piece = new Queen(false);
             }
         }
 
@@ -378,11 +378,12 @@ public class Game {
                 }
             }
         }
+        board.position[tFile][tRank] = piece;
+        board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
         lastMove[1] = to;
         lastMove[0] = from;
         System.out.println(board);
-        System.out.println(whiteToMove);
         if (isCheck()){
             System.out.println("Schack");
         }
