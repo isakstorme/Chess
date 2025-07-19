@@ -1,5 +1,7 @@
 package rules;
 
+import java.util.ArrayList;
+
 public class Game {
 
     //Todo, fix castling and promotion
@@ -28,11 +30,42 @@ public class Game {
     public Boolean isWhiteMove;
     
     public Boolean hasEnded(){  //Todo
+        return (isMate() || isStalemate() || isInsufficientMaterial() || isRepetition() || isFifty());
+    }
+
+    private boolean isFifty() {
         return false;
     }
 
-    public Boolean isCheck(){ //Todo
+    private boolean isRepetition() {
         return false;
+    }
+
+    private boolean isInsufficientMaterial() {
+        return false;
+    }
+
+    public Boolean isCheck(){ 
+        ArrayList<NumCoordinate> opponentThreats = new ArrayList<>();  // Stores not the square from where the pieces are, but all squares that are controlled by opponent
+        whiteToMove = !whiteToMove;
+        Boolean isCheck = false;
+        for (int f = 0; f < 8; f++){
+            for (int r= 0; r<8; r++){  // for every square of the board,
+                NumCoordinate coordinate = new NumCoordinate(f, r);
+                Piece piece = board.get(coordinate);
+                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isLegalMove(coordinate, to)){
+                        opponentThreats.add(to);
+                        if (board.get(to) instanceof King){
+                            isCheck = true;
+                        }
+                    }
+                }
+            }
+        }
+        whiteToMove = !whiteToMove;
+        return isCheck;
     }
 
     public Boolean isMate(){  //Todo
@@ -44,6 +77,9 @@ public class Game {
     }
 
     public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){
+        if (isOutOfBoard(from) || isOutOfBoard(to)){
+            return false;
+        }
         int deltaFile = to.file - from.file;
         int deltaRank = to.rank - from.rank;
         Move move = new Move(deltaFile, deltaRank);
@@ -65,6 +101,13 @@ public class Game {
         }
 
         return true;
+    }
+
+    private boolean isOutOfBoard(NumCoordinate coordinate) {
+        if (coordinate.file < 0 || coordinate.file > 7 || coordinate.rank < 0 || coordinate.rank > 7){
+            return true;
+        }
+        return false;
     }
 
     private Boolean isValidPawnMove(Piece piece, Move move, NumCoordinate from, NumCoordinate to) {
@@ -204,6 +247,9 @@ public class Game {
         lastMove[1] = to;
         lastMove[0] = from;
         System.out.println(board);
+        if (isCheck()){
+            System.out.println("Schack");
+        }
     }
 
 }
