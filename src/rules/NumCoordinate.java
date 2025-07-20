@@ -7,13 +7,35 @@ public class NumCoordinate {
     public int rank;
     private HashMap<Character, Integer> fileMap;
     private HashMap<Character, Integer> rankMap;
+    private HashMap<Integer, Character> fileMapReversed;
+    private HashMap<Integer, Character> rankMapReversed;
+    public String coordinate;
 
-    public NumCoordinate(int file, int rank){
+    public NumCoordinate(int file, int rank){   // does not check if file is inside board which it probably/maybe should.
         this.file = file;
         this.rank = rank;
+        fileMapReversed = new HashMap<>(); // I don't know how efficient/inefficient it is to create a hashmap for every object. Maybe it could be static or in another class since it is used often.
+        fileMapReversed.put(0, 'a');
+        fileMapReversed.put(1, 'b');
+        fileMapReversed.put(2, 'c');
+        fileMapReversed.put(3, 'd');
+        fileMapReversed.put(4, 'e');
+        fileMapReversed.put(5, 'f');
+        fileMapReversed.put(6, 'g');
+        fileMapReversed.put(7, 'h');
+        rankMapReversed = new HashMap<>();
+        rankMapReversed.put(7, '8');
+        rankMapReversed.put(6, '7');
+        rankMapReversed.put(5, '6');
+        rankMapReversed.put(4, '5');
+        rankMapReversed.put(3, '4');
+        rankMapReversed.put(2, '3');
+        rankMapReversed.put(1, '2');
+        rankMapReversed.put(0, '1');
     }
 
     public NumCoordinate(String coordinate){
+        this.coordinate = coordinate;
         char[] tmp = coordinate.toCharArray();
         fileMap = new HashMap<>();
         fileMap.put('a', 0);
@@ -43,6 +65,14 @@ public class NumCoordinate {
 
         return new NumCoordinate(file + deltaFile, rank + deltaRank);
     }
+    public String coordinate(){
+        if (file >= 0 && file < 8 && rank >= 0 && rank < 8 ){
+            char[] coordinateArray = {fileMapReversed.get(file), rankMapReversed.get(rank)};
+            coordinate = String.valueOf(coordinateArray);
+            return coordinate;
+        }
+        return "not within board";
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -54,6 +84,10 @@ public class NumCoordinate {
             return numObj.file == file && numObj.rank == rank;
         }
         return false;
+    }
+    @Override
+    public String toString() {
+        return coordinate();
     }
 
 

@@ -197,6 +197,20 @@ public class Game {
         }
         return false;
     }
+
+    public ArrayList<NumCoordinate> LegalFromSquare(NumCoordinate from){
+        ArrayList<NumCoordinate> result = new ArrayList<>();
+        Piece piece = board.get(from);
+        for (Move m : piece.moves()){
+            int newFile = from.file + m.deltaFile;
+            int newRank = from.rank + m.deltaRank;
+            NumCoordinate to = new NumCoordinate(newFile, newRank);
+            if (isLegalMove(from, to)){
+                result.add(to);
+            }
+        }
+        return result;
+    }
     
 
     private boolean kingInCheck(NumCoordinate from, NumCoordinate to) {

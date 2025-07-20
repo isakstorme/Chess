@@ -38,6 +38,7 @@ public class BoardView {
     JPanel chessBoard;
     ArrayList<PiecePair> pieces;    // Stores all pieces and the coordinates they are standing on.
     Boolean hasClicked;
+    public ArrayList<Coordinate> legalSquares;
     public Game game;
 
     public BoardView() throws IOException{
@@ -56,16 +57,23 @@ public class BoardView {
         wQ = ImageIO.read(new File("Images/wQ.png"));
         frame = new JFrame("Chess");
         frame.setBounds(10, 10, 512, 512);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pieces = getStartingPosition();
         hasClicked = false;
+        legalSquares = new ArrayList<>();
         chessBoard= new JPanel(){
             @Override
             public void paintComponent(java.awt.Graphics g) {
                 super.paintComponent(g);   // I think this is supposed to be good practise but not quite sure.
                 Boolean isWhite = true;
+                System.out.println(legalSquares);
                 for (int r = 0; r < 8; r++){
                     for (int c = 0; c < 8; c++){
-                        if (isWhite){
+                        if (legalSquares.contains(getCoordinate(r, c))){
+                            g.setColor(Color.RED);
+                        }
+
+                        else if (isWhite){
                             g.setColor(Color.WHITE);
                         }
                         else{
@@ -102,78 +110,97 @@ public class BoardView {
             public void mouseReleased(MouseEvent e) {
                 int r = e.getX();
                 int c = e.getY();
-                Coordinate coordinate = getCoordinate(r, c);
+                Coordinate coordinate = getCoordinateOfClick(r, c);
                 if (!hasClicked){
                     from = coordinate;
+                    NumCoordinate numCoordinate = new NumCoordinate(from.coordinate);
+                    ArrayList<NumCoordinate> legalSquaresNum = game.LegalFromSquare(numCoordinate); 
+                    if (legalSquaresNum.isEmpty()){
+                        return;
+                    }
+                    for (NumCoordinate cNum : legalSquaresNum){
+                        legalSquares.add(coordinateConverter(cNum));
+                    }
                     hasClicked = !hasClicked;
+                    chessBoard.repaint();
                 }
                 else{
                     to = coordinate;
                     move(from, to);
                     hasClicked = !hasClicked;
+                    legalSquares = new ArrayList<>();
                 }
-            }
-
-            private Coordinate getCoordinate(int r, int c) {
-                int numR = r/squareSize;
-                int numC = c/squareSize;
-                char file = 'a';  // Just because Java says file and rank might not be initialised. But feels non-ideal
-                char rank = '2';
-
-                if  (numR == 0){
-                    file = 'a';
-                }
-                else if (numR == 1){
-                    file = 'b';
-                }
-                else if (numR == 2){
-                    file = 'c';
-                }
-                else if (numR == 3){
-                    file = 'd';
-                }
-                else if (numR == 4){
-                    file = 'e';
-                }
-                else if (numR == 5){
-                    file = 'f';
-                }
-                else if (numR == 6){
-                    file = 'g';
-                }
-                else if (numR == 7){
-                    file = 'h';
-                }
-
-                if  (numC == 0){
-                    rank = '8';
-                }
-                else if (numC == 1){
-                    rank = '7';
-                }
-                else if (numC == 2){
-                    rank = '6';
-                }
-                else if (numC == 3){
-                    rank = '5';
-                }
-                else if (numC == 4){
-                    rank = '4';
-                }
-                else if (numC == 5){
-                    rank = '3';
-                }
-                else if (numC == 6){
-                    rank = '2';
-                }
-                else if (numC == 7){
-                    rank = '1';
-                }
-                char [] chars = {file, rank};
-                String coordinateString = new String(chars);
-                return new Coordinate(coordinateString);
             }
         });
+    }
+    private Coordinate getCoordinateOfClick(int r, int c) {  //Finds coordinate of click
+                int numR = r/squareSize;
+                int numC = c/squareSize;
+                return getCoordinate(numR, numC);
+            }
+    private Coordinate getCoordinate(int r, int c){
+        char file = 'a';  // Just because Java says file and rank might not be initialised. But feels non-ideal
+        char rank = '2';
+
+        if  (r == 0){
+                    file = 'a';
+        }
+        else if (r == 1){
+            file = 'b';
+        }
+        else if (r == 2){
+            file = 'c';
+        }
+        else if (r == 3){
+            file = 'd';
+        }
+        else if (r == 4){
+            file = 'e';
+        }
+        else if (r == 5){
+            file = 'f';
+        }
+        else if (r == 6){
+            file = 'g';
+        }
+        else if (r == 7){
+            file = 'h';
+        }
+        
+        if  (c == 0){
+            rank = '8';
+        }
+        else if (c == 1){
+            rank = '7';
+        }
+        else if (c == 2){
+            rank = '6';
+        }
+        else if (c == 3){
+            rank = '5';
+        }
+        else if (c == 4){
+            rank = '4';
+        }
+        else if (c == 5){
+            rank = '3';
+        }
+        else if (c == 6){
+            rank = '2';
+        }
+        else if (c == 7){
+            rank = '1';
+        }
+        char [] chars = {file, rank};
+        String coordinateString = new String(chars);
+        return new Coordinate(coordinateString);
+    }
+
+    public Coordinate coordinateConverter(NumCoordinate numcoordinate){
+        int file = numcoordinate.file;
+        int rank = Math.abs(numcoordinate.rank - 7);
+
+        return getCoordinate(file, rank);
     }
     public Image getImage(String piece){
         if (piece == "wP"){
