@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import randomBot.RandomBot;
 import rules.Game;
 import rules.NumCoordinate;
 import rules.*;
@@ -101,9 +101,60 @@ public class BoardView {
     public static void main(String[] args) throws Exception {
         BoardView bb = new BoardView();
         bb.mainLoop();
+        //bb.randomBotLoop();
         //bb.chessGame();
     }
 
+    private void randomBotLoop() {
+        RandomBot randomBot = new RandomBot();
+        chessBoard.addMouseListener(new MouseAdapter() {
+            Coordinate from = coordinates.get("b1");
+            Coordinate to = coordinates.get("a1");
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (!game.whiteToMove){
+                    return;
+                }
+                int r = e.getX();
+                int c = e.getY();
+                Coordinate coordinate = getCoordinateOfClick(r, c);
+                if (!hasClicked){
+                    from = coordinate;
+                    NumCoordinate numCoordinate = new NumCoordinate(from.coordinate);
+                    ArrayList<NumCoordinate> legalSquaresNum = game.LegalFromSquare(numCoordinate); 
+                    if (legalSquaresNum.isEmpty()){
+                        return;
+                    }
+                    for (NumCoordinate cNum : legalSquaresNum){
+                        legalSquares.add(coordinateConverter(cNum));
+                    }
+                    hasClicked = !hasClicked;
+                    chessBoard.repaint();
+                }
+                else{
+                    to = coordinate;
+                    if (to.equals(from)){ //makes sure you can double click on a piece without strange things happening
+                        return;
+                    }
+                    move(from, to);
+                    hasClicked = !hasClicked;
+                    legalSquares = new ArrayList<>();
+                }
+            }
+        });
+        while (true){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            if (!game.whiteToMove){
+                NumCoordinate[] chosenMove = randomBot.move(game);
+                move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+            }
+        }
+    }
     private void mainLoop() {
         chessBoard.addMouseListener(new MouseAdapter() {
             Coordinate from = coordinates.get("b1");
