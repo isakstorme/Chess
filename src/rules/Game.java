@@ -232,6 +232,29 @@ public class Game {
         return false;
     }
 
+    public ArrayList<NumCoordinate[]> allLegalMoves(){  // returns a number of lists where each list has two elements. Element 0 is starting square and element 1 is ending square
+        ArrayList<NumCoordinate[]> result = new ArrayList<>();
+        for (int f = 0; f < 8; f++ ){
+            for (int r = 0; r < 8; r++){
+                NumCoordinate from = coordinates[f][r];
+                Piece piece = board.get(from);
+                for (Move m : piece.moves()){
+                    int newFile = f + m.deltaFile;
+                    int newRank = r + m.deltaRank;
+                    if (isOutOfBoard(newFile, newRank)){
+                        continue;
+                    }
+                    NumCoordinate to = coordinates[newFile]  [newRank];
+                    if (isLegalMove(from, to)){
+                        NumCoordinate[] toAdd = {from, to};
+                        result.add(toAdd);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public ArrayList<NumCoordinate> LegalFromSquare(NumCoordinate from){
         ArrayList<NumCoordinate> result = new ArrayList<>();
         Piece piece = board.get(from);
