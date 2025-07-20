@@ -4,18 +4,26 @@ import java.util.ArrayList;
 
 public class Game {
 
-    //Todo, fix castling and promotion
     public Board board;
     public Boolean whiteToMove;
     private NumCoordinate[] lastMove;  // Move here defined as element 0 is starting square and element 1 is final square
+    private NumCoordinate [][] coordinates;
+    private int movesWithoutPawnOrCapture; //TODO
 
 
     public Game(){
         board = new Board();
         whiteToMove = true;
+        coordinates = new NumCoordinate[8][8];
+        for (int f = 0; f<8; f++){
+            for (int r = 0; r<8; r++){
+                coordinates[f][r] = new NumCoordinate(f, r);
+            }
+        }
         lastMove = new NumCoordinate[2];
-        lastMove[0] = new NumCoordinate(0, 0); //this is ugly, might fix later. It is to avoid nullpointerexception on first move
-        lastMove[1] = new NumCoordinate(0, 0);
+        lastMove[0] = coordinates[0][0]; //this is ugly, might fix later. It is to avoid nullpointerexception on first move
+        lastMove[1] = coordinates[0][0];
+        movesWithoutPawnOrCapture = 0;
         System.out.println(board);
     }
     
@@ -41,10 +49,13 @@ public class Game {
         Boolean isCheck = false;
         for (int f = 0; f < 8; f++){
             for (int r= 0; r<8; r++){  // for every square of the board,
-                NumCoordinate coordinate = new NumCoordinate(f, r);
+                NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
                 for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
-                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
+                        continue;
+                    }
+                    NumCoordinate to = coordinates[coordinate.file + m.deltaFile] [coordinate.rank + m.deltaRank];
                     if (isValidMove(coordinate, to)){
                         opponentThreats.add(to);
                         if (board.get(to) instanceof King){
@@ -65,10 +76,13 @@ public class Game {
 
         for (int f = 0; f < 8; f++){
             for (int r= 0; r<8; r++){  // for every square of the board,
-                NumCoordinate coordinate = new NumCoordinate(f, r);
+                NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
                 for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
-                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
+                        continue;
+                    }
+                    NumCoordinate to = coordinates[coordinate.file + m.deltaFile] [coordinate.rank + m.deltaRank];
                     if (isLegalMove(coordinate, to)){
                         return false;
                     }
@@ -85,10 +99,13 @@ public class Game {
         }
         for (int f = 0; f < 8; f++){
             for (int r= 0; r<8; r++){  // for every square of the board,
-                NumCoordinate coordinate = new NumCoordinate(f, r);
+                NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
                 for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
-                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
+                        continue;
+                    }
+                    NumCoordinate to = coordinates[coordinate.file + m.deltaFile][coordinate.rank + m.deltaRank];
                     if (isLegalMove(coordinate, to)){
                         return false;
                     }
@@ -99,10 +116,7 @@ public class Game {
         return true;
     }
 
-    public Boolean isValidMove(NumCoordinate from, NumCoordinate to){  // doesn't check if results in check which is important for checking check mate and things
-        if (isOutOfBoard(from) || isOutOfBoard(to)){
-            return false;
-        }
+    public Boolean isValidMove(NumCoordinate from, NumCoordinate to){  // doesn't check if results in check which is important for checking check mate and things. Does not check if squares are outside of board
         int deltaFile = to.file - from.file;
         int deltaRank = to.rank - from.rank;
         Move move = new Move(deltaFile, deltaRank);
@@ -132,32 +146,52 @@ public class Game {
     private Boolean isValidCastle(NumCoordinate from, NumCoordinate to) {
         if (whiteToMove){
             if (to.file - from.file == 2){  //Kingside
-                if (opponentThreats().contains(new NumCoordinate("g1")) 
-                || opponentThreats().contains(new NumCoordinate("f1"))
-                || opponentThreats().contains(new NumCoordinate("e1"))){
+                NumCoordinate e1 = coordinates[4][0];
+                NumCoordinate f1 = coordinates[5][0];
+                NumCoordinate g1 = coordinates[6][0];
+                if (opponentThreats().contains(e1) 
+                || opponentThreats().contains(f1)
+                || opponentThreats().contains(g1)
+                || !(board.get(f1) instanceof EmptySquare)
+                || !(board.get(g1) instanceof EmptySquare)){
                     return false;
                 }
             }
             else{
-                if (opponentThreats().contains(new NumCoordinate("e1")) 
-                || opponentThreats().contains(new NumCoordinate("d1"))
-                || opponentThreats().contains(new NumCoordinate("c1"))){
+                NumCoordinate e1 = coordinates[4][0];
+                NumCoordinate d1 = coordinates[3][0];
+                NumCoordinate c1 = coordinates[2][0];
+                if (opponentThreats().contains(e1) 
+                || opponentThreats().contains(d1)
+                || opponentThreats().contains(c1)
+                || !(board.get(d1) instanceof EmptySquare)
+                || !(board.get(c1) instanceof EmptySquare)){
                     return false;
                 }
             }
         }
         else{
             if (to.file - from.file == 2){  //Kingside
-                if (opponentThreats().contains(new NumCoordinate("g8")) 
-                || opponentThreats().contains(new NumCoordinate("f8"))
-                || opponentThreats().contains(new NumCoordinate("e8"))){
+                NumCoordinate e8 = coordinates[4][7];;
+                NumCoordinate f8 = coordinates[5][7];;
+                NumCoordinate g8 = coordinates[6][7];;
+                if (opponentThreats().contains(e8) 
+                || opponentThreats().contains(f8)
+                || opponentThreats().contains(g8)
+                || !(board.get(f8) instanceof EmptySquare)
+                || !(board.get(g8) instanceof EmptySquare)){
                     return false;
                 }
             }
             else{
-                if (opponentThreats().contains(new NumCoordinate("e8")) 
-                || opponentThreats().contains(new NumCoordinate("d8"))
-                || opponentThreats().contains(new NumCoordinate("c8"))){
+                NumCoordinate e8 = coordinates[4][7];;
+                NumCoordinate d8 = coordinates[3][7];;
+                NumCoordinate c8 = coordinates[2][7];;
+                if (opponentThreats().contains(e8) 
+                || opponentThreats().contains(d8)
+                || opponentThreats().contains(c8)
+                || !(board.get(d8) instanceof EmptySquare)
+                || !(board.get(c8) instanceof EmptySquare)){
                     return false;
                 }
             }
@@ -170,10 +204,13 @@ public class Game {
         whiteToMove = !whiteToMove;
         for (int f = 0; f < 8; f++){
             for (int r= 0; r<8; r++){  // for every square of the board,
-                NumCoordinate coordinate = new NumCoordinate(f, r);
+                NumCoordinate coordinate = coordinates[f] [r];
                 Piece piece = board.get(coordinate);
                 for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
-                    NumCoordinate to = new NumCoordinate(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank);
+                    if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
+                        continue;
+                    }
+                    NumCoordinate to = coordinates[coordinate.file + m.deltaFile] [coordinate.rank + m.deltaRank];
                     if (piece instanceof King && Math.abs(m.deltaFile) == 2){   // If we check castling we can happen in a very strange loop 
                         //where we get stack overflow with stack trace isValidCastle-opponentThreats-isValidMove-isValidCastle 
                         continue;
@@ -188,10 +225,7 @@ public class Game {
         return opponentThreats;
     }
 
-    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){
-        if (isOutOfBoard(from) || isOutOfBoard(to)){
-            return false;
-        }
+    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){ // Does not check if move is out of board
         if (!(kingInCheck(from, to)) && isValidMove(from, to)){
             return true;
         }
@@ -204,7 +238,10 @@ public class Game {
         for (Move m : piece.moves()){
             int newFile = from.file + m.deltaFile;
             int newRank = from.rank + m.deltaRank;
-            NumCoordinate to = new NumCoordinate(newFile, newRank);
+            if (isOutOfBoard(newFile, newRank)){
+                continue;
+            }
+            NumCoordinate to = coordinates[newFile]  [newRank];
             if (isLegalMove(from, to)){
                 result.add(to);
             }
@@ -230,8 +267,8 @@ public class Game {
         return result;
     }
 
-    private boolean isOutOfBoard(NumCoordinate coordinate) {
-        if (coordinate.file < 0 || coordinate.file > 7 || coordinate.rank < 0 || coordinate.rank > 7){
+    private boolean isOutOfBoard(int file, int rank) {
+        if (file < 0 || file > 7 || rank < 0 || rank > 7){
             return true;
         }
         return false;
@@ -350,7 +387,6 @@ public class Game {
                 board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
             }
             if (to.rank == 7){
-                System.out.println("din mamma");
                 piece = new Queen(true);  // TODO: Should fix so not automatically promote to queen
             }
             if (to.rank == 0){
@@ -372,37 +408,62 @@ public class Game {
 
         if (piece instanceof Rook){
             if (from.file == 0 && from.rank == 0){
-                if (board.get(new NumCoordinate("e1")) instanceof King){
-                    board.get(new NumCoordinate("e1")).moves().removeIf(m -> m.deltaFile == 2);
+                if (board.get(coordinates[4][0]) instanceof King){
+                    board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == -2);
                 }
             }
             if (from.file == 7 && from.rank == 0){
-                if (board.get(new NumCoordinate("e1")) instanceof King){
-                    board.get(new NumCoordinate("e1")).moves().removeIf(m -> m.deltaFile == -2);
+                if (board.get(coordinates[4][0]) instanceof King){
+                    board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == 2);
                 }
             }
             if (from.file == 0 && from.rank == 7){
-                if (board.get(new NumCoordinate("e8")) instanceof King){
-                    board.get(new NumCoordinate("e8")).moves().removeIf(m -> m.deltaFile == 2);
+                if (board.get(coordinates[4][7]) instanceof King){
+                    board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == -2);
                 }
             }
             if (from.file == 7 && from.rank == 7){
-                if (board.get(new NumCoordinate("e8")) instanceof King){
-                    board.get(new NumCoordinate("e8")).moves().removeIf(m -> m.deltaFile == -2);
+                if (board.get(coordinates[4][7]) instanceof King){
+                    board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == 2);
                 }
             }
         }
+
+        //These below check if a rook is taken
+
+        if (to.file == 0 && to.rank == 0){
+                if (board.get(coordinates[4][0]) instanceof King){
+                    board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == -2);
+                }
+        }
+
+        if (to.file == 7 && to.rank == 0){
+                if (board.get(coordinates[4][0]) instanceof King){
+                    board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == 2);
+                }
+            }
+        if (to.file == 0 && to.rank == 7){
+                if (board.get(coordinates[4][7]) instanceof King){
+                    board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == -2);
+                }
+            }
+        if (to.file == 7 && to.rank == 7){
+            if (board.get(coordinates[4][7]) instanceof King){
+                board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == 2);
+            }
+        }
+
         board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
         lastMove[1] = to;
         lastMove[0] = from;
         System.out.println(board);
-        if (isCheck()){
-            System.out.println("Schack");
-        }
         if (isMate()){
-            System.out.println("checkmate");
+            System.out.println("Checkmate");
+        }
+        else if (isCheck()){
+            System.out.println("Check");
         }
         if (isStalemate()){
             System.out.println("Stalemate");

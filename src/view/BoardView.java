@@ -66,7 +66,6 @@ public class BoardView {
             public void paintComponent(java.awt.Graphics g) {
                 super.paintComponent(g);   // I think this is supposed to be good practise but not quite sure.
                 Boolean isWhite = true;
-                System.out.println(legalSquares);
                 for (int r = 0; r < 8; r++){
                     for (int c = 0; c < 8; c++){
                         if (legalSquares.contains(getCoordinate(r, c))){
@@ -126,6 +125,9 @@ public class BoardView {
                 }
                 else{
                     to = coordinate;
+                    if (to.equals(from)){ //makes sure you can double click on a piece without strange things happening
+                        return;
+                    }
                     move(from, to);
                     hasClicked = !hasClicked;
                     legalSquares = new ArrayList<>();

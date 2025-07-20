@@ -54,6 +54,11 @@ public class Board {
         int rank = coordinate.rank;
         return position[file][rank];
     }
+    public Piece get(int file, int rank){
+        return position[file][rank];
+    }
+
+    // I don't know if I am supposed to have a setter here. The board is supposed to be mutable anyways so position might just as well be public.
 
     @Override
     public String toString() {
