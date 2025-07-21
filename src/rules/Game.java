@@ -9,7 +9,7 @@ public class Game {
     private NumCoordinate[] lastMove;  // Move here defined as element 0 is starting square and element 1 is final square
     private NumCoordinate [][] coordinates;
     private Boolean hasEnded;
-    private int movesWithoutPawnOrCapture; //TODO
+    private int movesWithoutPawnOrCapture; //Strictly speaking half moves
 
 
     public Game(){
@@ -30,10 +30,18 @@ public class Game {
     }
     
     public Boolean hasEnded(){  //Todo
+        //if (hasEnded){
+        //    for (Movement m : log){
+        //        System.out.println(m);
+        //    }
+        //}
         return hasEnded;
     }
 
     private boolean isFifty() {
+        if (movesWithoutPawnOrCapture >= 100){
+            return true;
+        }
         return false;
     }
 
@@ -228,6 +236,9 @@ public class Game {
     }
 
     public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){ // Does not check if move is out of board
+        if (hasEnded){
+            return false;
+        }
         if (!(kingInCheck(from, to)) && isValidMove(from, to)){
             return true;
         }
@@ -353,7 +364,7 @@ public class Game {
         Move dir = directionOfMove(move);
         Move m = directionOfMove(move);   //this one is incremented according to dir
         while (Math.abs(m.deltaFile) < Math.abs(move.deltaFile) || Math.abs(m.deltaRank) < Math.abs(move.deltaRank)){ // We examine all squares leading up to the square we want to go to
-            NumCoordinate newCoordinate = from.move(m);
+            NumCoordinate newCoordinate = coordinates[from.file + m.deltaFile][from.rank + m.deltaRank];
             if (!(board.get(newCoordinate) instanceof EmptySquare)){
                 return true;
             }
@@ -406,8 +417,12 @@ public class Game {
         int tFile = to.file;
         int tRank = to.rank;
         Piece piece = board.position[fFile][fRank];
+
+        movesWithoutPawnOrCapture += 1;
+
         if (piece instanceof Pawn){
             ((Pawn)piece).moved();
+            movesWithoutPawnOrCapture = 0;   //reset 50 move rule if pawn moves
             if (from.file != to.file  && (board.get(to) instanceof EmptySquare)){  // Handles en passant
                 board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
             }
@@ -478,6 +493,10 @@ public class Game {
             }
         }
 
+        if (!(board.get(to) instanceof EmptySquare)){
+            movesWithoutPawnOrCapture = 0;
+        }
+
         board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
@@ -485,13 +504,19 @@ public class Game {
         lastMove[0] = from;
         System.out.println(board);
         if (isMate()){
-            System.out.println("Checkmate");
-        }
-        else if (isCheck()){
-            System.out.println("Check");
+            System.out.println("win by checkmate");  
+            hasEnded = true;   // Detta ska ändras. Sidoeffekter som utskrifter bör vara i BoardView
         }
         if (isStalemate()){
-            System.out.println("Stalemate");
+            System.out.println("draw by stalemate");
+            hasEnded = true;
+        }
+
+        System.out.println(movesWithoutPawnOrCapture);
+
+        if (isFifty()){
+            System.out.println("draw by fifty move rule");
+            hasEnded = true;
         }
     }
 
