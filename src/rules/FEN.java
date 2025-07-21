@@ -36,7 +36,11 @@ public class FEN {    // FEN is a way of representing a chess position. This cla
             }
             else if (obj instanceof FEN){
                 FEN objF = (FEN) obj;
-                return objF.FEN.equals(this.FEN) && objF.wKCastle == this.wKCastle && objF.wQCastle == this.wQCastle && objF.bKCastle == this.bKCastle && objF.bQCastle == this.bQCastle;
+                return objF.FEN.equals(this.FEN) && objF.wKCastle == this.wKCastle 
+                && objF.wQCastle == this.wQCastle 
+                && objF.bKCastle == this.bKCastle 
+                && objF.bQCastle == this.bQCastle
+                && objF.hasEnPassant == this.hasEnPassant;
             }
 
             return false;

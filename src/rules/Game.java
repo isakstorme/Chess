@@ -42,12 +42,7 @@ public class Game {
         System.out.println(board);
     }
     
-    public Boolean hasEnded(){  //Todo
-        //if (hasEnded){
-        //    for (Movement m : log){
-        //        System.out.println(m);
-        //    }
-        //}
+    public Boolean hasEnded(){ 
         return hasEnded;
     }
 
@@ -110,7 +105,7 @@ public class Game {
         return isCheck;
     }
 
-    public Boolean isMate(){  //Todo
+    public Boolean isMate(){ 
         if (!isCheck()){
             return false;
         }
@@ -134,7 +129,7 @@ public class Game {
         return true;
     }
 
-    public Boolean isStalemate(){  //Todo
+    public Boolean isStalemate(){ 
         if (isCheck()){
             return false;
         }
@@ -318,16 +313,31 @@ public class Game {
     
 
     private boolean kingInCheck(NumCoordinate from, NumCoordinate to) {
-        Boolean result;
+        Boolean result = false;
         Piece piece = board.get(from);
         Piece otherPiece = board.get(to);  // could be empty square
+        if (piece instanceof Pawn && from.file != to.file && board.get(to) instanceof EmptySquare){   // Handles en passant. In exceptional cases en passant can give arise to horizontal check.
+            Piece temp = board.get(to.file, from.rank);
+            board.position[to.file][from.rank] = new EmptySquare();
+            if (isCheck()){
+                result = true;
+            }
+            board.position[to.file][from.rank] = temp;
+
+        }
         board.position[from.file][from.rank] = new EmptySquare();
         board.position[to.file][to.rank] = piece;
         if (isCheck()){
             result = true;
         }
-        else{
-            result = false;
+        if (piece instanceof Pawn && from.file != to.file && otherPiece instanceof EmptySquare){   // Handles en passant. In exceptional cases en passant can give arise to horizontal check.
+            Piece temp = board.get(to.file, from.rank);
+            board.position[to.file][from.rank] = new EmptySquare();
+            if (isCheck()){
+                result = true;
+            }
+            board.position[to.file][from.rank] = temp;
+
         }
         board.position[to.file][to.rank] = otherPiece;
         board.position[from.file][from.rank] = piece;
@@ -450,6 +460,7 @@ public class Game {
         Piece piece = board.position[fFile][fRank];
 
         movesWithoutPawnOrCapture += 1;
+        hasEnPassant = false;
 
         if (piece instanceof Pawn){
             ((Pawn)piece).moved();
@@ -547,8 +558,10 @@ public class Game {
         board.position[tFile][tRank] = piece;
         board.position[fFile][fRank] = new EmptySquare();
         whiteToMove = !whiteToMove;
+        
         lastMove[1] = to;
         lastMove[0] = from;
+        hasEnPassant = allowsEnPassant(from, to);
         System.out.println(board);
         if (isMate()){
             System.out.println("win by checkmate");  
@@ -558,8 +571,6 @@ public class Game {
             System.out.println("draw by stalemate");
             hasEnded = true;
         }
-
-        System.out.println(movesWithoutPawnOrCapture);
 
         if (isFifty()){
             System.out.println("draw by fifty move rule");
@@ -571,6 +582,7 @@ public class Game {
             System.out.println("insufficient material");
         }
 
+
         if (whiteToMove){
             positionHistory.add(new FEN(board, 1, wKCastle, wQCastle, bKCastle, bQCastle, hasEnPassant, coordinates));
         }
@@ -580,7 +592,40 @@ public class Game {
         if (isRepetition()){
             hasEnded = true;
             System.out.println("Draw, same position has been repeated three times");
+
         }
+    }
+
+    private Boolean allowsEnPassant(NumCoordinate from, NumCoordinate to) {
+        if (!(board.get(to) instanceof Pawn)){
+            return false;
+        }
+        if (to.rank - from.rank == 2){
+            System.out.println("hej");
+            if (!(isOutOfBoard(from.file - 1, to.rank ))){
+                if (isLegalMove(coordinates[from.file - 1][to.rank], coordinates[from.file][to.rank - 1]) && board.get(coordinates[from.file - 1][to.rank]) instanceof Pawn){
+                    return true;
+                }
+            }
+            if (!(isOutOfBoard(from.file + 1, to.rank ))){
+                if (isLegalMove(coordinates[from.file + 1][to.rank], coordinates[from.file][to.rank - 1]) && board.get(coordinates[from.file + 1][to.rank]) instanceof Pawn){
+                    return true;
+                } 
+            }
+        }
+        else if (to.rank - from.rank == -2){
+            if (!(isOutOfBoard(from.file - 1, to.rank ))){
+                if (isLegalMove(coordinates[from.file - 1][to.rank], coordinates[from.file][to.rank + 1]) && board.get(coordinates[from.file - 1][to.rank]) instanceof Pawn){
+                    return true;
+                }
+            }
+            if (!(isOutOfBoard(from.file - 1, to.rank ))){
+                if (isLegalMove(coordinates[from.file + 1][to.rank], coordinates[from.file][to.rank + 1]) && board.get(coordinates[from.file + 1][to.rank]) instanceof Pawn){
+                    return true;
+                } 
+            }
+        }
+        return false;
     }
 
 }
