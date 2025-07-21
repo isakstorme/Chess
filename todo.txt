@@ -1,0 +1,19 @@
+TODO
+
+I loop through every coordinate several times, I maybe should do a helper function for it.
+
+Maybe store all pieces in a set or so to quickly be able to retrieve them without going through all coordinates (like in isInsufficietMaterial).
+
+Fix threefold repetition, 50-move rule and insufficient material.
+
+Add resignation.
+
+Maybe use only one class instead of both NumCoordinate and Move, because they both have file and rank as attributes and one class would probably be sufficient.
+
+In real chess you can claim a draw after 50 moves or move repetition. It is not drawn without the claim. I might change to make the implementation align better with the rules in this aspect,
+
+Not so important: Fix so animation is more efficient
+
+Found bug that needs to be solved:
+
+1. f4 c6 2.Kf2 Qa5 3.Kg3 Qb5 4.Kg4 Qa5 5. f5 Qb5 6.Kg5 e5  And here my program allows en passant because the program does not remove the pawn before checking if it is check.
