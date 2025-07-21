@@ -59,6 +59,17 @@ public class Game {
     }
 
     private boolean isRepetition() {
+        int length = positionHistory.size();
+        FEN current = positionHistory.get(length - 1);
+        int repetitions = 0;
+        for (int i = length - 1; i>=0; i--){
+            if (current.equals(positionHistory.get(i))){
+                repetitions += 1;
+                if (repetitions == 3){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -565,6 +576,10 @@ public class Game {
         }
         else{
             positionHistory.add(new FEN(board, 2, wKCastle, wQCastle, bKCastle, bQCastle, hasEnPassant, coordinates));
+        }
+        if (isRepetition()){
+            hasEnded = true;
+            System.out.println("Draw, same position has been repeated three times");
         }
     }
 
