@@ -10,18 +10,31 @@ public class Game {
     private NumCoordinate [][] coordinates;
     private Boolean hasEnded;
     private int movesWithoutPawnOrCapture; //Strictly speaking half moves
+    private Boolean wKCastle;
+    private Boolean wQCastle;
+    private Boolean bKCastle;
+    private Boolean bQCastle;
+    private Boolean hasEnPassant;
+    private ArrayList<FEN> positionHistory;
 
 
     public Game(){
         hasEnded = false;
         board = new Board();
         whiteToMove = true;
+        wKCastle = true;
+        wQCastle = true;
+        bKCastle = true;
+        bQCastle = true;
+        hasEnPassant = false;
+        positionHistory = new ArrayList<>();
         coordinates = new NumCoordinate[8][8];
         for (int f = 0; f<8; f++){
             for (int r = 0; r<8; r++){
                 coordinates[f][r] = new NumCoordinate(f, r);
             }
         }
+        positionHistory.add(new FEN(board, 1, wKCastle, wQCastle, bKCastle, bQCastle, hasEnPassant, coordinates));
         lastMove = new NumCoordinate[2];
         lastMove[0] = coordinates[0][0]; //this is ugly, might fix later. It is to avoid nullpointerexception on first move
         lastMove[1] = coordinates[0][0];
@@ -49,8 +62,15 @@ public class Game {
         return false;
     }
 
-    private boolean isInsufficientMaterial() {
-        return false;
+    private boolean isInsufficientMaterial() {   // This one is difficult and not even Lichess does this correctly, for example when position is blocked by pawns,
+        for (int f = 0; f < 8; f++){
+            for (int r = 0; r < 8; r++){
+                if (!((board.get(coordinates[f][r]) instanceof King || board.get(coordinates[f][r]) instanceof EmptySquare))){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public Boolean isCheck(){ 
@@ -315,7 +335,7 @@ public class Game {
             if (board.get(to).player() !=0 && board.get(to).player() != piece.player()){   //checks if we capture opponent's piece
                 return true;
             }
-            //checks en passent
+            //checks en passant
             else if ((to.rank == lastMove[1].rank + 1 || to.rank == lastMove[1].rank - 1) 
             && to.file == lastMove[1].file 
             && (Math.abs(lastMove[1].rank - lastMove[0].rank) == 2)
@@ -436,6 +456,14 @@ public class Game {
 
         if (piece instanceof King){
             ((King)piece).moved();
+            if (whiteToMove){
+                wKCastle = false;
+                wQCastle = false;
+            }
+            else {
+                bKCastle = false;
+                bQCastle = false;
+            }
             if (to.file - from.file == 2){
                 board.position[5][to.rank] = board.position[7][to.rank];
                 board.position[7][to.rank] = new EmptySquare();
@@ -448,21 +476,25 @@ public class Game {
 
         if (piece instanceof Rook){
             if (from.file == 0 && from.rank == 0){
+                wQCastle = false;
                 if (board.get(coordinates[4][0]) instanceof King){
                     board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == -2);
                 }
             }
             if (from.file == 7 && from.rank == 0){
+                wKCastle = false;
                 if (board.get(coordinates[4][0]) instanceof King){
                     board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == 2);
                 }
             }
             if (from.file == 0 && from.rank == 7){
+                bQCastle = false;
                 if (board.get(coordinates[4][7]) instanceof King){
                     board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == -2);
                 }
             }
             if (from.file == 7 && from.rank == 7){
+                bKCastle = false;
                 if (board.get(coordinates[4][7]) instanceof King){
                     board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == 2);
                 }
@@ -472,22 +504,26 @@ public class Game {
         //These below check if a rook is taken
 
         if (to.file == 0 && to.rank == 0){
-                if (board.get(coordinates[4][0]) instanceof King){
+            wQCastle = false;
+            if (board.get(coordinates[4][0]) instanceof King){
                     board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == -2);
-                }
+            }
         }
 
         if (to.file == 7 && to.rank == 0){
-                if (board.get(coordinates[4][0]) instanceof King){
+            wKCastle = false;
+            if (board.get(coordinates[4][0]) instanceof King){
                     board.get(coordinates[4][0]).moves().removeIf(m -> m.deltaFile == 2);
-                }
             }
+        }
         if (to.file == 0 && to.rank == 7){
-                if (board.get(coordinates[4][7]) instanceof King){
-                    board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == -2);
-                }
+            bQCastle = false;
+            if (board.get(coordinates[4][7]) instanceof King){
+                board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == -2);
             }
+        }
         if (to.file == 7 && to.rank == 7){
+            bKCastle = false;
             if (board.get(coordinates[4][7]) instanceof King){
                 board.get(coordinates[4][7]).moves().removeIf(m -> m.deltaFile == 2);
             }
@@ -517,6 +553,18 @@ public class Game {
         if (isFifty()){
             System.out.println("draw by fifty move rule");
             hasEnded = true;
+        }
+
+        if (isInsufficientMaterial()){
+            hasEnded = true;
+            System.out.println("insufficient material");
+        }
+
+        if (whiteToMove){
+            positionHistory.add(new FEN(board, 1, wKCastle, wQCastle, bKCastle, bQCastle, hasEnPassant, coordinates));
+        }
+        else{
+            positionHistory.add(new FEN(board, 2, wKCastle, wQCastle, bKCastle, bQCastle, hasEnPassant, coordinates));
         }
     }
 
