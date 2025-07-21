@@ -9,12 +9,11 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import randomBot.RandomBot;
-import rules.Game;
-import rules.NumCoordinate;
 import rules.*;
 
 //This is partly (creating the board almost entirely) based on https://www.youtube.com/watch?v=vO7wHV0HB8w
@@ -99,13 +98,42 @@ public class BoardView {
         frame.setVisible(true);
     }
     public static void main(String[] args) throws Exception {
-        BoardView bb = new BoardView();
-        bb.mainLoop();
-        //bb.randomBotLoop();
+
+        String inputValue = JOptionPane.showInputDialog("1 is you have White against randomBot\n 2 is you have Black againstrandomBot \n 3 is human vs human \n 4 is bot vs bot");
+        BoardView bv;
+        if (Integer.valueOf(inputValue) == 1){
+            bv = new BoardView();
+            bv.randomBotLoop(true);
+        }
+        else if (Integer.valueOf(inputValue) == 2){
+            bv = new BoardView();
+            bv.randomBotLoop(false);
+        }
+        else if (Integer.valueOf(inputValue) == 3){
+            bv = new BoardView();
+            bv.mainLoop();
+        }
+       else if (Integer.valueOf(inputValue) == 4){
+            bv = new BoardView();
+            bv.randomBotBotLoop();
+        }
         //bb.chessGame();
     }
 
-    private void randomBotLoop() {
+    private void randomBotBotLoop() {    // This is randombot playing against itself
+        RandomBot randomBot = new RandomBot();
+        while (!game.hasEnded()){
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            NumCoordinate[] chosenMove = randomBot.move(game);
+            move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+        }
+        throw new UnsupportedOperationException("Unimplemented method 'randomBotBotLoop'");
+    }
+    private void randomBotLoop(Boolean playerHasWhite) {
         RandomBot randomBot = new RandomBot();
         chessBoard.addMouseListener(new MouseAdapter() {
             Coordinate from = coordinates.get("b1");
@@ -113,7 +141,10 @@ public class BoardView {
             
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (!game.whiteToMove){
+                if (playerHasWhite && !game.whiteToMove){
+                    return;
+                }
+                else if (!playerHasWhite && game.whiteToMove){
                     return;
                 }
                 int r = e.getX();
@@ -149,9 +180,17 @@ public class BoardView {
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
-            if (!game.whiteToMove){
-                NumCoordinate[] chosenMove = randomBot.move(game);
-                move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+            if (playerHasWhite){
+                if (!game.whiteToMove && !game.hasEnded()){
+                    NumCoordinate[] chosenMove = randomBot.move(game);
+                    move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+                }
+            }
+            else{
+                if (game.whiteToMove && !game.hasEnded()){
+                    NumCoordinate[] chosenMove = randomBot.move(game);
+                    move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+                }
             }
         }
     }

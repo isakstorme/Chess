@@ -8,10 +8,12 @@ public class Game {
     public Boolean whiteToMove;
     private NumCoordinate[] lastMove;  // Move here defined as element 0 is starting square and element 1 is final square
     private NumCoordinate [][] coordinates;
+    private Boolean hasEnded;
     private int movesWithoutPawnOrCapture; //TODO
 
 
     public Game(){
+        hasEnded = false;
         board = new Board();
         whiteToMove = true;
         coordinates = new NumCoordinate[8][8];
@@ -28,7 +30,7 @@ public class Game {
     }
     
     public Boolean hasEnded(){  //Todo
-        return (isMate() || isStalemate() || isInsufficientMaterial() || isRepetition() || isFifty());
+        return hasEnded;
     }
 
     private boolean isFifty() {
@@ -89,7 +91,7 @@ public class Game {
                 }
             }
         }
-
+        hasEnded = true;
         return true;
     }
 
@@ -112,7 +114,7 @@ public class Game {
                 }
             }
         }
-
+        hasEnded = true;
         return true;
     }
 
