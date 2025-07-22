@@ -619,7 +619,9 @@ public class Game {
                     return true;
                 }
             }
-            if (!(isOutOfBoard(from.file - 1, to.rank ))){
+            if (!(isOutOfBoard(from.file + 1, to.rank ))){
+                System.out.println(from);
+                System.out.println(to);
                 if (isLegalMove(coordinates[from.file + 1][to.rank], coordinates[from.file][to.rank + 1]) && board.get(coordinates[from.file + 1][to.rank]) instanceof Pawn){
                     return true;
                 } 

@@ -14,25 +14,9 @@ public class NumCoordinate {
     public NumCoordinate(int file, int rank){   // does not check if file is inside board which it probably/maybe should.
         this.file = file;
         this.rank = rank;
-        fileMapReversed = new HashMap<>(); // I don't know how efficient/inefficient it is to create a hashmap for every object. Maybe it could be static or in another class since it is used often.
-        fileMapReversed.put(0, 'a');
-        fileMapReversed.put(1, 'b');
-        fileMapReversed.put(2, 'c');
-        fileMapReversed.put(3, 'd');
-        fileMapReversed.put(4, 'e');
-        fileMapReversed.put(5, 'f');
-        fileMapReversed.put(6, 'g');
-        fileMapReversed.put(7, 'h');
-        rankMapReversed = new HashMap<>();
-        rankMapReversed.put(7, '8');
-        rankMapReversed.put(6, '7');
-        rankMapReversed.put(5, '6');
-        rankMapReversed.put(4, '5');
-        rankMapReversed.put(3, '4');
-        rankMapReversed.put(2, '3');
-        rankMapReversed.put(1, '2');
-        rankMapReversed.put(0, '1');
+        initfileMap();
     }
+
 
     public NumCoordinate(String coordinate){
         this.coordinate = coordinate;
@@ -57,13 +41,33 @@ public class NumCoordinate {
         rankMap.put('1', 0);
         file = fileMap.get(tmp[0]);
         rank = rankMap.get(tmp[1]);
-    }
-
-    public NumCoordinate move(Move m){
+       
+    }   public NumCoordinate move(Move m){
         int deltaFile = m.deltaFile;
         int deltaRank = m.deltaRank;
 
         return new NumCoordinate(file + deltaFile, rank + deltaRank);
+    }
+
+      private void initfileMap() {
+        fileMapReversed = new HashMap<>(); // I don't know how efficient/inefficient it is to create a hashmap for every object. Maybe it could be static or in another class since it is used often.
+        fileMapReversed.put(0, 'a');
+        fileMapReversed.put(1, 'b');
+        fileMapReversed.put(2, 'c');
+        fileMapReversed.put(3, 'd');
+        fileMapReversed.put(4, 'e');
+        fileMapReversed.put(5, 'f');
+        fileMapReversed.put(6, 'g');
+        fileMapReversed.put(7, 'h');
+        rankMapReversed = new HashMap<>();
+        rankMapReversed.put(7, '8');
+        rankMapReversed.put(6, '7');
+        rankMapReversed.put(5, '6');
+        rankMapReversed.put(4, '5');
+        rankMapReversed.put(3, '4');
+        rankMapReversed.put(2, '3');
+        rankMapReversed.put(1, '2');
+        rankMapReversed.put(0, '1');
     }
     public String coordinate(){
         if (file >= 0 && file < 8 && rank >= 0 && rank < 8 ){
@@ -87,7 +91,10 @@ public class NumCoordinate {
     }
     @Override
     public String toString() {
-        return coordinate();
+        if (coordinate == null){
+            return coordinate();
+        }
+        return coordinate;
     }
 
 
