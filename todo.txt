@@ -1,5 +1,23 @@
 TODO
 
+En designfråga som jag inte har tänkt på men som kan vara värd att tänka på är följande: Vill jag ha en metod för kolla tillåtna drag i klasserna som implementerar Piece eller i Game så som nu?
+
+Kolla hur jag kan minska upprepningar.
+
+När jag kollar efter tillåtna drag kollar jag massa drag som inte är möjliga. Är ett sätt att undvika det att bara spara riktning i filer istället för potentialla drag.
+
+Tänk efter hur jag vill hantera specialdrag? Vill jag ändra något för rockad och en passant, och hur ska jag göra med promovering.
+
+Lägg till notation.
+
+Ha kanske bara en klass Coordinate istället för både Coordinate och NumCoordinate
+
+Fundera på vilka förändringar som kan/bör göras för att göra koden snabbare och mindre laggig
+
+Maybe smart to introduce a function called undoMove which can be used when checking if it is check.
+
+Kanske ska försöka flytta isOutOfBoards så att jag inte upprepar den i typ varje funktion i game. DRY
+
 I loop through every coordinate several times, I maybe should do a helper function for it.
 
 Maybe store all pieces in a set or so to quickly be able to retrieve them without going through all coordinates (like in isInsufficietMaterial).
@@ -17,3 +35,8 @@ Not so important: Fix so animation is more efficient
 Found bug that needs to be solved:
 
 1. f4 c6 2.Kf2 Qa5 3.Kg3 Qb5 4.Kg4 Qa5 5. f5 Qb5 6.Kg5 e5  And here my program allows en passant because the program does not remove the pawn before checking if it is check.
+
+AllowsEnPassant kraschade efter hxg4 med IndexOutOfBoundsException (Löst)
+
+En gång när jag demonstrerade på Lask tog datorn tillbaka sitt drag och gjorde ett annat istället. Hände en gång och har inte klarat att rekonstruera misstaget.
+

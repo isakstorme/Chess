@@ -99,7 +99,7 @@ public class BoardView {
     }
     public static void main(String[] args) throws Exception {
 
-        String inputValue = JOptionPane.showInputDialog("1 is you have White against randomBot\n 2 is you have Black againstrandomBot \n 3 is human vs human \n 4 is bot vs bot");
+        String inputValue = JOptionPane.showInputDialog("1 is you have White against randomBot\n 2 is you have Black against randomBot \n 3 is human vs human \n 4 is bot vs bot");
         BoardView bv;
         if (Integer.valueOf(inputValue) == 1){
             bv = new BoardView();
@@ -124,14 +124,13 @@ public class BoardView {
         RandomBot randomBot = new RandomBot();
         while (!game.hasEnded()){
             try {
-                Thread.sleep(300);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             NumCoordinate[] chosenMove = randomBot.move(game);
             move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
         }
-        throw new UnsupportedOperationException("Unimplemented method 'randomBotBotLoop'");
     }
     private void randomBotLoop(Boolean playerHasWhite) {
         RandomBot randomBot = new RandomBot();
@@ -170,13 +169,13 @@ public class BoardView {
                     }
                     move(from, to);
                     hasClicked = !hasClicked;
-                    legalSquares = new ArrayList<>();
+                    legalSquares = new ArrayList<>(); // Vet inte hur effektivt detta är, kanske ska ändra det.
                 }
             }
         });
         while (true){
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
@@ -206,7 +205,7 @@ public class BoardView {
                 Coordinate coordinate = getCoordinateOfClick(r, c);
                 if (!hasClicked){
                     from = coordinate;
-                    NumCoordinate numCoordinate = new NumCoordinate(from.coordinate);
+                    NumCoordinate numCoordinate = new NumCoordinate(from.coordinate);  
                     ArrayList<NumCoordinate> legalSquaresNum = game.LegalFromSquare(numCoordinate); 
                     if (legalSquaresNum.isEmpty()){
                         return;
