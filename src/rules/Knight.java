@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Knight implements Piece  {
     private int player;
-    private ArrayList<Move> moves;
+    private ArrayList<Movement> moves;
 
     public Knight(Boolean isWhite){
         if (isWhite){
@@ -14,14 +14,14 @@ public class Knight implements Piece  {
             player = 2;
         }
         moves = new ArrayList<>();
-        moves.add(new Move(-2, -1));
-        moves.add(new Move(-1, -2));
-        moves.add(new Move(2, -1));
-        moves.add(new Move(-1, 2));
-        moves.add(new Move(2, 1));
-        moves.add(new Move(1, 2));
-        moves.add(new Move(-2, 1));
-        moves.add(new Move(1, -2));
+        moves.add(new Movement(-2, -1));
+        moves.add(new Movement(-1, -2));
+        moves.add(new Movement(2, -1));
+        moves.add(new Movement(-1, 2));
+        moves.add(new Movement(2, 1));
+        moves.add(new Movement(1, 2));
+        moves.add(new Movement(-2, 1));
+        moves.add(new Movement(1, -2));
 
     }
 
@@ -31,7 +31,7 @@ public class Knight implements Piece  {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return moves;
     }
 

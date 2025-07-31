@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Bishop implements Piece  {
     int player;
-    ArrayList<Move> moves;
+    ArrayList<Movement> moves;
 
     public Bishop(Boolean isWhite){
         if (isWhite){
@@ -15,10 +15,10 @@ public class Bishop implements Piece  {
         }
         moves = new ArrayList<>();
         for (int i = 1; i <= 7; i++){
-            moves.add(new Move(i, i));
-            moves.add(new Move(i, -i));
-            moves.add(new Move(-i, i));
-            moves.add(new Move(-i, -i));
+            moves.add(new Movement(i, i));
+            moves.add(new Movement(i, -i));
+            moves.add(new Movement(-i, i));
+            moves.add(new Movement(-i, -i));
         }
 
     }
@@ -29,7 +29,7 @@ public class Bishop implements Piece  {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return moves;
     }
 

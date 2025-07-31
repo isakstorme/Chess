@@ -87,7 +87,7 @@ public class Game {
             for (int r= 0; r<8; r++){  // for every square of the board,
                 NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
-                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                for (Movement m : piece.moves()){   // check which moves of all potential ones are legal.
                     if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
                         continue;
                     }
@@ -114,7 +114,7 @@ public class Game {
             for (int r= 0; r<8; r++){  // for every square of the board,
                 NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
-                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                for (Movement m : piece.moves()){   // check which moves of all potential ones are legal.
                     if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
                         continue;
                     }
@@ -137,7 +137,7 @@ public class Game {
             for (int r= 0; r<8; r++){  // for every square of the board,
                 NumCoordinate coordinate = coordinates[f][r];
                 Piece piece = board.get(coordinate);
-                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                for (Movement m : piece.moves()){   // check which moves of all potential ones are legal.
                     if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
                         continue;
                     }
@@ -155,7 +155,7 @@ public class Game {
     public Boolean isValidMove(NumCoordinate from, NumCoordinate to){  // doesn't check if results in check which is important for checking check mate and things. Does not check if squares are outside of board
         int deltaFile = to.file - from.file;
         int deltaRank = to.rank - from.rank;
-        Move move = new Move(deltaFile, deltaRank);
+        Movement move = new Movement(deltaFile, deltaRank);
         Piece piece = board.get(from);
         if (!rightPlayerMove(piece)){
             return false;
@@ -242,7 +242,7 @@ public class Game {
             for (int r= 0; r<8; r++){  // for every square of the board,
                 NumCoordinate coordinate = coordinates[f] [r];
                 Piece piece = board.get(coordinate);
-                for (Move m : piece.moves()){   // check which moves of all potential ones are legal.
+                for (Movement m : piece.moves()){   // check which moves of all potential ones are legal.
                     if (isOutOfBoard(coordinate.file + m.deltaFile, coordinate.rank + m.deltaRank)){
                         continue;
                     }
@@ -261,7 +261,7 @@ public class Game {
         return opponentThreats;
     }
 
-    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){ // Does not check if move is out of board
+    public Boolean isLegalMove(NumCoordinate from, NumCoordinate to){ // Does not check if move is out of board which it maybe/probably should
         if (hasEnded){
             return false;
         }
@@ -271,13 +271,13 @@ public class Game {
         return false;
     }
 
-    public ArrayList<NumCoordinate[]> allLegalMoves(){  // returns a number of lists where each list has two elements. Element 0 is starting square and element 1 is ending square
-        ArrayList<NumCoordinate[]> result = new ArrayList<>();
+    public ArrayList<Move> allLegalMoves(){  // returns a number of lists where each list has two elements. Element 0 is starting square and element 1 is ending square. I am dissatisfied though that promoting is handled as one move only
+        ArrayList<Move> result = new ArrayList<>();
         for (int f = 0; f < 8; f++ ){
             for (int r = 0; r < 8; r++){
                 NumCoordinate from = coordinates[f][r];
                 Piece piece = board.get(from);
-                for (Move m : piece.moves()){
+                for (Movement m : piece.moves()){
                     int newFile = f + m.deltaFile;
                     int newRank = r + m.deltaRank;
                     if (isOutOfBoard(newFile, newRank)){
@@ -285,8 +285,15 @@ public class Game {
                     }
                     NumCoordinate to = coordinates[newFile]  [newRank];
                     if (isLegalMove(from, to)){
-                        NumCoordinate[] toAdd = {from, to};
-                        result.add(toAdd);
+                        if (isPromotion(from, to)){
+                            result.add(new PromotionMove(from, to, 'q'));
+                            result.add(new PromotionMove(from, to, 'r'));
+                            result.add(new PromotionMove(from, to, 'b'));
+                            result.add(new PromotionMove(from, to, 'n'));
+                        }
+                        else{
+                             result.add(new NormalMove(from, to));
+                        }
                     }
                 }
             }
@@ -294,10 +301,17 @@ public class Game {
         return result;
     }
 
+    private boolean isPromotion(NumCoordinate from, NumCoordinate to) {
+        if ((to.rank == 7 ||to.rank == 0) && board.get(from) instanceof Pawn){
+            return true;
+        }
+        return false;
+    }
+
     public ArrayList<NumCoordinate> LegalFromSquare(NumCoordinate from){
         ArrayList<NumCoordinate> result = new ArrayList<>();
         Piece piece = board.get(from);
-        for (Move m : piece.moves()){
+        for (Movement m : piece.moves()){
             int newFile = from.file + m.deltaFile;
             int newRank = from.rank + m.deltaRank;
             if (isOutOfBoard(newFile, newRank)){
@@ -351,7 +365,7 @@ public class Game {
         return false;
     }
 
-    private Boolean isValidPawnMove(Piece piece, Move move, NumCoordinate from, NumCoordinate to) {
+    private Boolean isValidPawnMove(Piece piece, Movement move, NumCoordinate from, NumCoordinate to) {
         if (move.deltaFile != 0){   //if pawn move is diagonal
             if (board.get(to).player() !=0 && board.get(to).player() != piece.player()){   //checks if we capture opponent's piece
                 return true;
@@ -394,7 +408,7 @@ public class Game {
         return true;
     }
 
-    private Boolean invalidJumpOverPiece(NumCoordinate from, NumCoordinate to, Move move){
+    private Boolean invalidJumpOverPiece(NumCoordinate from, NumCoordinate to, Movement move){
         Piece piece = board.position[from.file][from.rank];
         if (piece instanceof Knight){
             return false;
@@ -402,61 +416,63 @@ public class Game {
         if (Math.abs(move.deltaFile) <= 1 && Math.abs(move.deltaRank) <= 1){
             return false;
         }
-        Move dir = directionOfMove(move);
-        Move m = directionOfMove(move);   //this one is incremented according to dir
+        Movement dir = directionOfMove(move);
+        Movement m = directionOfMove(move);   //this one is incremented according to dir
         while (Math.abs(m.deltaFile) < Math.abs(move.deltaFile) || Math.abs(m.deltaRank) < Math.abs(move.deltaRank)){ // We examine all squares leading up to the square we want to go to
             NumCoordinate newCoordinate = coordinates[from.file + m.deltaFile][from.rank + m.deltaRank];
             if (!(board.get(newCoordinate) instanceof EmptySquare)){
                 return true;
             }
-            m = new Move(m.deltaFile + dir.deltaFile, m.deltaRank + dir.deltaRank);
+            m = new Movement(m.deltaFile + dir.deltaFile, m.deltaRank + dir.deltaRank);
         }
 
         return false;
     }
 
-    private Move directionOfMove(Move move){
+    private Movement directionOfMove(Movement move){
         if (move.deltaFile == 0){   //Vertical move, two directions, front or back
             if (move.deltaRank > 0){
-                return new Move(0, 1);
+                return new Movement(0, 1);
             }
             else {
-                return new Move(0, -1);
+                return new Movement(0, -1);
             }
         }
         if (move.deltaRank == 0){   // Horizontal move, two directions, left and right
             if (move.deltaFile > 0){
-                return new Move(1, 0);
+                return new Movement(1, 0);
             }
             else{
-                return new Move(-1, 0);
+                return new Movement(-1, 0);
             }
         }
 
         if (move.deltaFile < 0 && move.deltaRank < 0){  // Down diagonal left
-            return new Move(-1, -1);
+            return new Movement(-1, -1);
         }
         
         if (move.deltaFile < 0 && move.deltaRank > 0){  // Left upwards
-            return new Move(-1, 1);
+            return new Movement(-1, 1);
         }
         if (move.deltaFile > 0 && move.deltaRank > 0){  // Right upwards
-            return new Move(1, 1);
+            return new Movement(1, 1);
         }if (move.deltaFile > 0 && move.deltaRank < 0){  //Right down
-            return new Move(1, -1);
+            return new Movement(1, -1);
         }
-        return new Move(0, 0);
+        return new Movement(0, 0);
 
 
 
     }
 
 
-    public void move(NumCoordinate from, NumCoordinate to) {   // This assumemes the move is legal, no check is performed here
-        int fFile = from.file;
-        int fRank = from.rank;
-        int tFile = to.file;
-        int tRank = to.rank;
+    public void move(Move move) {   // This assumemes the move is legal, no check is performed here // Change to take move
+        int fFile = move.from().file;
+        int fRank = move.from().rank;
+        int tFile = move.to().file;
+        int tRank = move.to().rank;
+        NumCoordinate to = move.to();
+        NumCoordinate from = move.from();
         Piece piece = board.position[fFile][fRank];
 
         movesWithoutPawnOrCapture += 1;
@@ -465,14 +481,49 @@ public class Game {
         if (piece instanceof Pawn){
             ((Pawn)piece).moved();
             movesWithoutPawnOrCapture = 0;   //reset 50 move rule if pawn moves
-            if (from.file != to.file  && (board.get(to) instanceof EmptySquare)){  // Handles en passant
+            if (fFile != tFile  && (board.get(to) instanceof EmptySquare)){  // Handles en passant
                 board.position[lastMove[1].file][lastMove[1].rank] = new EmptySquare();
             }
             if (to.rank == 7){
-                piece = new Queen(true);  // TODO: Should fix so not automatically promote to queen
+                if (move instanceof PromotionMove){
+                    Character pieceChar = ((PromotionMove) move).piece();
+                    System.out.println(pieceChar);
+                        if (pieceChar.equals('q')){
+                            piece = new Queen(true);
+                        }
+                        else if (pieceChar.equals('b')){
+                            piece = new Bishop(true);
+                        }
+                        else if (pieceChar.equals('n')){
+                            piece = new Knight(true);
+                        }
+                        else if (pieceChar.equals('r')){
+                            piece = new Rook(true);
+                        }
+                }
+                else{
+                     piece = new Queen(true);
+                }
             }
             if (to.rank == 0){
-                piece = new Queen(false);
+                if (move instanceof PromotionMove){
+                    Character pieceChar = ((PromotionMove) move).piece();
+                    if (pieceChar.equals('q')){
+                        piece = new Queen(false);
+                    }
+                    else if (pieceChar.equals('b')){
+                        piece = new Bishop(false);
+                    }
+                    else if (pieceChar.equals('n')){
+                        piece = new Knight(false);
+                    }
+                    else if (pieceChar.equals('r')){
+                        piece = new Rook(false);
+                    }
+                    else{
+                        piece = new Queen(false);
+                    }
+                }
             }
         }
 

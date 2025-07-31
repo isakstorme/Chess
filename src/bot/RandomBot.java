@@ -1,12 +1,13 @@
-package randomBot;
+package bot;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import rules.Game;
+import rules.Move;
 import rules.NumCoordinate;
 
-public class RandomBot {
+public class RandomBot implements Bot {
     Boolean isWhite;
     Random random;
 
@@ -14,8 +15,8 @@ public class RandomBot {
         random = new Random();
     }
 
-    public NumCoordinate[] move(Game game){
-        ArrayList<NumCoordinate[]> moves = game.allLegalMoves();
+    public Move move(Game game){
+        ArrayList<Move> moves = game.allLegalMoves();
         int len = moves.size();
         int randomInt = random.nextInt(len);
 

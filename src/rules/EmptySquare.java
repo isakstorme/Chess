@@ -10,7 +10,7 @@ public class EmptySquare implements Piece {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return new ArrayList();
     }
 

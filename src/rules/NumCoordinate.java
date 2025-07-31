@@ -42,7 +42,7 @@ public class NumCoordinate {
         file = fileMap.get(tmp[0]);
         rank = rankMap.get(tmp[1]);
        
-    }   public NumCoordinate move(Move m){
+    }   public NumCoordinate move(Movement m){
         int deltaFile = m.deltaFile;
         int deltaRank = m.deltaRank;
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Pawn implements Piece  {
     private int player;
-    private ArrayList<Move> moves;
+    private ArrayList<Movement> moves;
 
     public Pawn(Boolean isWhite){
         if (isWhite){
@@ -15,16 +15,16 @@ public class Pawn implements Piece  {
         }
         moves = new ArrayList<>();
         if (isWhite){
-            moves.add(new Move(0, 2));
-            moves.add(new Move(0, 1));
-            moves.add(new Move(1, 1));
-            moves.add(new Move(-1, 1));
+            moves.add(new Movement(0, 2));
+            moves.add(new Movement(0, 1));
+            moves.add(new Movement(1, 1));
+            moves.add(new Movement(-1, 1));
         }
         else{
-            moves.add(new Move(0, -2));
-            moves.add(new Move(0, -1));
-            moves.add(new Move(1, -1));
-            moves.add(new Move(-1, -1));
+            moves.add(new Movement(0, -2));
+            moves.add(new Movement(0, -1));
+            moves.add(new Movement(1, -1));
+            moves.add(new Movement(-1, -1));
         }
 
     }
@@ -35,7 +35,7 @@ public class Pawn implements Piece  {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return moves;
     }
 

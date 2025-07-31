@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import randomBot.RandomBot;
+import bot.*;
 import rules.*;
 
 //This is partly (creating the board almost entirely) based on https://www.youtube.com/watch?v=vO7wHV0HB8w
@@ -103,11 +103,11 @@ public class BoardView {
         BoardView bv;
         if (Integer.valueOf(inputValue) == 1){
             bv = new BoardView();
-            bv.randomBotLoop(true);
+            bv.botLoop(new RandomBot(),true);
         }
         else if (Integer.valueOf(inputValue) == 2){
             bv = new BoardView();
-            bv.randomBotLoop(false);
+            bv.botLoop(new RandomBot(), false);
         }
         else if (Integer.valueOf(inputValue) == 3){
             bv = new BoardView();
@@ -115,25 +115,25 @@ public class BoardView {
         }
        else if (Integer.valueOf(inputValue) == 4){
             bv = new BoardView();
-            bv.randomBotBotLoop();
+            bv.botBotLoop(new RandomBot());
         }
         //bb.chessGame();
     }
 
-    private void randomBotBotLoop() {    // This is randombot playing against itself
-        RandomBot randomBot = new RandomBot();
+    private void botBotLoop(Bot bot) {    // This is randombot playing against itself
         while (!game.hasEnded()){
             try {
-                Thread.sleep(5);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            NumCoordinate[] chosenMove = randomBot.move(game);
-            move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+            Move chosenMove = bot.move(game);
+            game.move(chosenMove);
+            pieces = boardToImage(game.board);
+            chessBoard.repaint();
         }
     }
-    private void randomBotLoop(Boolean playerHasWhite) {
-        RandomBot randomBot = new RandomBot();
+    private void botLoop(Bot bot, Boolean playerHasWhite) {
         chessBoard.addMouseListener(new MouseAdapter() {
             Coordinate from = coordinates.get("b1");
             Coordinate to = coordinates.get("a1");
@@ -181,14 +181,18 @@ public class BoardView {
             }
             if (playerHasWhite){
                 if (!game.whiteToMove && !game.hasEnded()){
-                    NumCoordinate[] chosenMove = randomBot.move(game);
-                    move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+                    Move chosenMove = bot.move(game);
+                    game.move(chosenMove);
+                    pieces = boardToImage(game.board);
+                    chessBoard.repaint();
                 }
             }
             else{
                 if (game.whiteToMove && !game.hasEnded()){
-                    NumCoordinate[] chosenMove = randomBot.move(game);
-                    move(coordinates.get(chosenMove[0].coordinate()), coordinates.get(chosenMove[1].coordinate()));
+                    Move chosenMove = bot.move(game);
+                    game.move(chosenMove);
+                    pieces = boardToImage(game.board);
+                    chessBoard.repaint();
                 }
             }
         }
@@ -350,7 +354,18 @@ public class BoardView {
             return; //break the function if move is illeal
             
         }
-        game.move(new NumCoordinate(from.coordinate), new NumCoordinate(to.coordinate));
+
+        NumCoordinate nFrom = new NumCoordinate(from.coordinate);
+        NumCoordinate nto = new NumCoordinate(to.coordinate);
+        
+        if (game.board.get(nFrom) instanceof Pawn && (nto.rank == 0 || nto.rank == 7)){
+            Character piece = (JOptionPane.showInputDialog("q is queen, r is rook, n is knight, b is bishop")).charAt(0);
+            game.move(new PromotionMove(nFrom, nto, piece));
+        }
+
+        else{
+            game.move(new NormalMove(nFrom, nto));
+        }
         SwingUtilities.invokeLater(() -> {
             pieces = boardToImage(game.board);  // Probably not efficient to rewrite everything but I don't think the cost in performance matters much.
             chessBoard.repaint();

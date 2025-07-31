@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Queen implements Piece  {
     private int player;
-    private ArrayList<Move> moves;
+    private ArrayList<Movement> moves;
 
     public Queen(Boolean isWhite){
         if (isWhite){
@@ -15,14 +15,14 @@ public class Queen implements Piece  {
         }
         moves = new ArrayList<>();
         for (int i = 1; i <= 7; i++){
-            moves.add(new Move(i, i));
-            moves.add(new Move(i, -i));
-            moves.add(new Move(-i, i));
-            moves.add(new Move(-i, -i));
-            moves.add(new Move(-i, 0));
-            moves.add(new Move(i, 0));
-            moves.add(new Move(0, -i));
-            moves.add(new Move(0, i));
+            moves.add(new Movement(i, i));
+            moves.add(new Movement(i, -i));
+            moves.add(new Movement(-i, i));
+            moves.add(new Movement(-i, -i));
+            moves.add(new Movement(-i, 0));
+            moves.add(new Movement(i, 0));
+            moves.add(new Movement(0, -i));
+            moves.add(new Movement(0, i));
         }
 
     }
@@ -33,7 +33,7 @@ public class Queen implements Piece  {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return moves;
     }
 

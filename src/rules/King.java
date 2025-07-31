@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class King implements Piece  {
     private int player;
-    public ArrayList<Move> moves;
+    public ArrayList<Movement> moves;
 
     public King(Boolean isWhite){
         if(isWhite){
@@ -14,16 +14,16 @@ public class King implements Piece  {
             player = 2;
         }
         moves = new ArrayList<>();
-        moves.add(new Move(1, 1));
-        moves.add(new Move(1, -1));
-        moves.add(new Move(-1, 1));
-        moves.add(new Move(-1, -1));
-        moves.add(new Move(-1, 0));
-        moves.add(new Move(1, 0));
-        moves.add(new Move(0, -1));
-        moves.add(new Move(0, 1));
-        moves.add(new Move(2, 0));
-        moves.add(new Move(-2, 0));
+        moves.add(new Movement(1, 1));
+        moves.add(new Movement(1, -1));
+        moves.add(new Movement(-1, 1));
+        moves.add(new Movement(-1, -1));
+        moves.add(new Movement(-1, 0));
+        moves.add(new Movement(1, 0));
+        moves.add(new Movement(0, -1));
+        moves.add(new Movement(0, 1));
+        moves.add(new Movement(2, 0));
+        moves.add(new Movement(-2, 0));
 
     }
 
@@ -37,7 +37,7 @@ public class King implements Piece  {
     }
 
     @Override
-    public ArrayList<Move> moves() {
+    public ArrayList<Movement> moves() {
         return moves;
     }
 
